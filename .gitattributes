@@ -1,0 +1,5 @@
+# Os dados brutos têm SHA-256 conferido pelo ETL: o Git não pode converter quebras de linha.
+data/raw/*.csv -text
+*.csv.gz binary
+*.png binary
+*.ipynb text eol=lf

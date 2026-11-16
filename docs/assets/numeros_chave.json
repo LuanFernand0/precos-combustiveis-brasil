@@ -1,0 +1,598 @@
+{
+  "rq1": {
+    "resumo": {
+      "gasolina_comum": {
+        "inicio": "2001-07",
+        "preco_inicial": 1.681,
+        "preco_final": 5.05,
+        "variacao_acumulada_pct": 200.345,
+        "pico": 7.28,
+        "mes_do_pico": "2022-05",
+        "meses": 258
+      },
+      "gasolina_aditivada": {
+        "inicio": "2020-10",
+        "preco_inicial": 4.509,
+        "preco_final": 5.22,
+        "variacao_acumulada_pct": 15.768,
+        "pico": 7.39,
+        "mes_do_pico": "2022-05",
+        "meses": 28
+      },
+      "etanol_hidratado": {
+        "inicio": "2001-07",
+        "preco_inicial": 1.009,
+        "preco_final": 3.88,
+        "variacao_acumulada_pct": 284.425,
+        "pico": 5.37,
+        "mes_do_pico": "2021-11",
+        "meses": 258
+      },
+      "oleo_diesel": {
+        "inicio": "2001-07",
+        "preco_inicial": 0.829,
+        "preco_final": 6.33,
+        "variacao_acumulada_pct": 663.294,
+        "pico": 7.46,
+        "mes_do_pico": "2022-07",
+        "meses": 258
+      },
+      "oleo_diesel_s10": {
+        "inicio": "2012-12",
+        "preco_inicial": 2.226,
+        "preco_final": 6.44,
+        "variacao_acumulada_pct": 189.308,
+        "pico": 7.57,
+        "mes_do_pico": "2022-07",
+        "meses": 121
+      },
+      "gas_cozinha_glp": {
+        "inicio": "2001-07",
+        "preco_inicial": 17.195,
+        "preco_final": 108.27,
+        "variacao_acumulada_pct": 529.663,
+        "pico": 113.513,
+        "mes_do_pico": "2022-04",
+        "meses": 258
+      },
+      "gas_natural_veicular_gnv": {
+        "inicio": "2001-07",
+        "preco_inicial": 0.73,
+        "preco_final": 4.73,
+        "variacao_acumulada_pct": 547.945,
+        "pico": 5.3,
+        "mes_do_pico": "2022-06",
+        "meses": 258
+      }
+    },
+    "variacao_mensal": {
+      "gasolina_comum": {
+        "count": 256.0,
+        "mean": 0.46,
+        "median": 0.2,
+        "std": 2.81,
+        "min": -16.55,
+        "max": 12.3,
+        "q1": -0.36,
+        "q3": 1.11,
+        "iqr": 1.46
+      },
+      "gasolina_aditivada": {
+        "count": 27.0,
+        "mean": 0.68,
+        "median": 1.24,
+        "std": 5.25,
+        "min": -15.78,
+        "max": 10.77,
+        "q1": -0.73,
+        "q3": 2.9,
+        "iqr": 3.63
+      },
+      "etanol_hidratado": {
+        "count": 256.0,
+        "mean": 0.63,
+        "median": 0.49,
+        "std": 5.3,
+        "min": -12.89,
+        "max": 28.1,
+        "q1": -1.5,
+        "q3": 2.79,
+        "iqr": 4.29
+      },
+      "oleo_diesel": {
+        "count": 256.0,
+        "mean": 0.82,
+        "median": 0.07,
+        "std": 2.75,
+        "min": -7.86,
+        "max": 18.34,
+        "q1": -0.1,
+        "q3": 1.21,
+        "iqr": 1.31
+      },
+      "oleo_diesel_s10": {
+        "count": 119.0,
+        "mean": 0.9,
+        "median": 0.27,
+        "std": 2.87,
+        "min": -7.45,
+        "max": 12.86,
+        "q1": -0.1,
+        "q3": 2.0,
+        "iqr": 2.1
+      },
+      "gas_cozinha_glp": {
+        "count": 256.0,
+        "mean": 0.74,
+        "median": 0.1,
+        "std": 2.34,
+        "min": -7.64,
+        "max": 16.88,
+        "q1": -0.08,
+        "q3": 0.73,
+        "iqr": 0.8
+      },
+      "gas_natural_veicular_gnv": {
+        "count": 256.0,
+        "mean": 0.77,
+        "median": 0.34,
+        "std": 1.99,
+        "min": -5.21,
+        "max": 17.03,
+        "q1": -0.05,
+        "q3": 1.11,
+        "iqr": 1.16
+      }
+    },
+    "outliers": {
+      "por_combustivel": {
+        "etanol_hidratado": 31,
+        "gas_cozinha_glp": 41,
+        "gas_natural_veicular_gnv": 34,
+        "gasolina_aditivada": 4,
+        "gasolina_comum": 39,
+        "oleo_diesel": 44,
+        "oleo_diesel_s10": 20
+      },
+      "gasolina_total": 39,
+      "gasolina_2001_2005": 14,
+      "gasolina_2006_2019": 12,
+      "gasolina_2020_2022": 13,
+      "gasolina_extremos": {
+        "2022-07": -16.55,
+        "2002-11": 12.3,
+        "2022-08": -10.91,
+        "2021-03": 10.77,
+        "2002-01": -10.55,
+        "2020-04": -8.87
+      },
+      "limites_gasolina": [
+        -2.55,
+        3.3
+      ]
+    },
+    "meses_citados": {
+      "gasolina_comum|2002-01": -10.55,
+      "gasolina_comum|2002-11": 12.3,
+      "oleo_diesel|2002-11": 18.34,
+      "etanol_hidratado|2002-11": 28.1,
+      "oleo_diesel|2018-05": 5.74,
+      "oleo_diesel|2018-06": -5.65,
+      "gasolina_comum|2020-04": -8.87,
+      "gasolina_comum|2020-05": -6.1,
+      "oleo_diesel|2022-03": 12.45,
+      "gasolina_comum|2021-03": 10.77,
+      "gasolina_comum|2022-07": -16.55,
+      "gasolina_comum|2022-08": -10.91,
+      "gasolina_comum|2022-09": -7.24,
+      "oleo_diesel|2022-07": 3.61,
+      "etanol_hidratado|2022-07": -11.02
+    },
+    "precos_citados": {
+      "gasolina_comum|2020-05": 3.818,
+      "gasolina_comum|2022-05": 7.28,
+      "gasolina_comum|2022-06": 7.25,
+      "gasolina_comum|2022-09": 5.0,
+      "gasolina_comum|2022-07": 6.05,
+      "oleo_diesel|2022-07": 7.46,
+      "oleo_diesel|2020-05": 3.037
+    },
+    "diesel_acima_da_gasolina": {
+      "meses": 7,
+      "primeiro": "2022-07"
+    },
+    "correlacao": {
+      "gasolina_comum|oleo_diesel": 0.68,
+      "gasolina_comum|etanol_hidratado": 0.67,
+      "etanol_hidratado|oleo_diesel": 0.44,
+      "gasolina_comum|gas_cozinha_glp": 0.24,
+      "oleo_diesel|gas_cozinha_glp": 0.37,
+      "etanol_hidratado|gas_cozinha_glp": 0.26
+    }
+  },
+  "rq2": {
+    "cv_medio_periodo": {
+      "gasolina_comum": 4.94,
+      "etanol_hidratado": 10.61,
+      "oleo_diesel": 5.99,
+      "gas_cozinha_glp": 8.98
+    },
+    "razao_max_min_media": {
+      "gasolina_comum": 1.23,
+      "etanol_hidratado": 1.59,
+      "oleo_diesel": 1.27,
+      "gas_cozinha_glp": 1.44
+    },
+    "cv_anual": {
+      "gasolina_comum": {
+        "2002": 4.97,
+        "2010": 4.99,
+        "2013": 3.98,
+        "2019": 5.36,
+        "2020": 6.25,
+        "2021": 4.99,
+        "2022": 4.29
+      },
+      "etanol_hidratado": {
+        "2002": 11.05,
+        "2010": 10.64,
+        "2013": 9.2,
+        "2019": 10.87,
+        "2020": 10.43,
+        "2021": 8.13,
+        "2022": 9.85
+      },
+      "oleo_diesel": {
+        "2002": 4.86,
+        "2010": 6.52,
+        "2013": 5.71,
+        "2019": 6.6,
+        "2020": 6.91,
+        "2021": 6.19,
+        "2022": 4.22
+      },
+      "gas_cozinha_glp": {
+        "2002": 8.15,
+        "2010": 9.33,
+        "2013": 9.06,
+        "2019": 10.02,
+        "2020": 10.38,
+        "2021": 8.66,
+        "2022": 7.31
+      }
+    },
+    "uf_mais_cara_gasolina": {
+      "AC": 193,
+      "MT": 22,
+      "RJ": 17,
+      "RO": 11
+    },
+    "uf_mais_barata_gasolina": {
+      "SP": 80,
+      "AP": 55,
+      "PI": 32,
+      "PB": 31
+    },
+    "meses_gasolina": 258,
+    "ranking": {
+      "gasolina_comum": {
+        "mais_caras": [
+          [
+            "AC",
+            111.9
+          ],
+          [
+            "RO",
+            105.2
+          ],
+          [
+            "MT",
+            105.0
+          ],
+          [
+            "TO",
+            104.3
+          ],
+          [
+            "PA",
+            103.7
+          ]
+        ],
+        "mais_baratas": [
+          [
+            "SE",
+            97.9
+          ],
+          [
+            "SC",
+            97.6
+          ],
+          [
+            "PR",
+            96.1
+          ],
+          [
+            "PB",
+            95.9
+          ],
+          [
+            "SP",
+            94.0
+          ]
+        ],
+        "norte_no_top5": 4
+      },
+      "etanol_hidratado": {
+        "mais_caras": [
+          [
+            "AC",
+            115.1
+          ],
+          [
+            "RR",
+            113.8
+          ],
+          [
+            "PA",
+            113.7
+          ],
+          [
+            "AP",
+            113.5
+          ],
+          [
+            "RO",
+            107.4
+          ]
+        ],
+        "mais_baratas": [
+          [
+            "MG",
+            91.0
+          ],
+          [
+            "MT",
+            87.4
+          ],
+          [
+            "GO",
+            86.6
+          ],
+          [
+            "PR",
+            84.2
+          ],
+          [
+            "SP",
+            76.9
+          ]
+        ],
+        "norte_no_top5": 5
+      },
+      "oleo_diesel": {
+        "mais_caras": [
+          [
+            "AC",
+            120.9
+          ],
+          [
+            "RR",
+            110.5
+          ],
+          [
+            "MT",
+            109.8
+          ],
+          [
+            "RO",
+            107.7
+          ],
+          [
+            "AP",
+            107.2
+          ]
+        ],
+        "mais_baratas": [
+          [
+            "RJ",
+            98.2
+          ],
+          [
+            "BA",
+            97.9
+          ],
+          [
+            "PB",
+            97.3
+          ],
+          [
+            "SP",
+            97.3
+          ],
+          [
+            "PR",
+            96.0
+          ]
+        ],
+        "norte_no_top5": 4
+      },
+      "gas_cozinha_glp": {
+        "mais_caras": [
+          [
+            "MT",
+            124.7
+          ],
+          [
+            "AC",
+            114.1
+          ],
+          [
+            "TO",
+            111.3
+          ],
+          [
+            "AP",
+            110.8
+          ],
+          [
+            "RR",
+            110.4
+          ]
+        ],
+        "mais_baratas": [
+          [
+            "AL",
+            94.7
+          ],
+          [
+            "ES",
+            94.1
+          ],
+          [
+            "BA",
+            93.2
+          ],
+          [
+            "RJ",
+            92.6
+          ],
+          [
+            "PE",
+            92.3
+          ]
+        ],
+        "norte_no_top5": 4
+      }
+    },
+    "persistencia_spearman": {
+      "gasolina_comum": 0.13,
+      "etanol_hidratado": 0.62,
+      "oleo_diesel": 0.61,
+      "gas_cozinha_glp": 0.54
+    }
+  },
+  "rq3": {
+    "brasil_razao_media": 0.661,
+    "brasil_razao_min": [
+      "2007-10",
+      0.512
+    ],
+    "brasil_razao_max": [
+      "2011-04",
+      0.815
+    ],
+    "brasil_pct_meses_vantajoso": 69.4,
+    "estados_pct_observacoes_vantajoso": 30.0,
+    "estados_observacoes": 6950,
+    "por_uf_pct": {
+      "MT": 83.3,
+      "SP": 79.1,
+      "GO": 77.5,
+      "PR": 59.3,
+      "MG": 48.4,
+      "MS": 42.2,
+      "TO": 37.2,
+      "PE": 34.9,
+      "AL": 34.9,
+      "RJ": 33.7,
+      "SC": 31.8,
+      "ES": 29.1,
+      "BA": 29.1,
+      "CE": 24.4,
+      "PB": 24.4,
+      "RS": 22.9,
+      "RO": 21.3,
+      "RN": 20.2,
+      "DF": 18.6,
+      "MA": 17.8,
+      "SE": 11.2,
+      "AM": 10.1,
+      "AC": 7.0,
+      "PI": 3.5,
+      "PA": 3.1,
+      "RR": 1.6,
+      "AP": 0.8
+    },
+    "por_uf_razao_media": {
+      "MT": 0.63,
+      "SP": 0.625,
+      "GO": 0.658,
+      "PR": 0.668,
+      "MG": 0.701,
+      "MS": 0.72,
+      "TO": 0.733,
+      "PE": 0.733,
+      "AL": 0.74,
+      "RJ": 0.735,
+      "SC": 0.782,
+      "ES": 0.772,
+      "BA": 0.735,
+      "CE": 0.764,
+      "PB": 0.752,
+      "RS": 0.81,
+      "RO": 0.778,
+      "RN": 0.768,
+      "DF": 0.758,
+      "MA": 0.802,
+      "SE": 0.783,
+      "AM": 0.777,
+      "AC": 0.78,
+      "PI": 0.801,
+      "PA": 0.83,
+      "RR": 0.858,
+      "AP": 0.875
+    },
+    "ufs_maioria_dos_meses": [
+      "MT",
+      "SP",
+      "GO",
+      "PR"
+    ],
+    "ufs_abaixo_de_5pct": [
+      "PI",
+      "PA",
+      "RR",
+      "AP"
+    ],
+    "brasil_media_2001_2010": 0.609,
+    "brasil_media_2011_2022": 0.701,
+    "brasil_pct_vantajoso_2001_2010": 93.0,
+    "brasil_pct_vantajoso_2011_2022": 51.0,
+    "brasil_anual": {
+      "2009": 0.591,
+      "2011": 0.731,
+      "2015": 0.666,
+      "2021": 0.747,
+      "2022": 0.726
+    },
+    "regioes_media": {
+      "Norte": 0.786,
+      "Nordeste": 0.75,
+      "Centro-Oeste": 0.678,
+      "Sudeste": 0.64,
+      "Sul": 0.695
+    },
+    "sazonalidade": {
+      "1": 0.684,
+      "2": 0.683,
+      "3": 0.687,
+      "4": 0.678,
+      "5": 0.662,
+      "6": 0.641,
+      "7": 0.634,
+      "8": 0.635,
+      "9": 0.636,
+      "10": 0.651,
+      "11": 0.665,
+      "12": 0.672
+    }
+  },
+  "base": {
+    "observacoes_precos": 44798,
+    "observacoes_paridade": 8498,
+    "primeiro_mes": "2001-07",
+    "ultimo_mes": "2023-01",
+    "meses": 258,
+    "chaves_recuperadas_linhas_brutas": 16
+  }
+}

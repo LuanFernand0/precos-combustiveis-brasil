@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "Se você utilizar este repositório, cite-o conforme abaixo."
+title: "Preços de revenda de combustíveis no Brasil (2001–2023): evolução, desigualdade regional e paridade etanol/gasolina"
+type: software
+authors:
+  - name: "Luan Fernando"
+  - name: "Miguel Marreiros"
+date-released: "2026-11-16"
+version: "1.0.0"
+license: MIT
+repository-code: "https://github.com/LuanFernand0/precos-combustiveis-brasil"
+url: "https://luanfernand0.github.io/precos-combustiveis-brasil/"
+keywords:
+  - preços de combustíveis
+  - ANP
+  - análise exploratória de dados
+  - pandas
+  - paridade etanol-gasolina
+  - princípios FAIR
+abstract: >-
+  Pipeline reprodutível em Python e artigo acadêmico em HTML sobre 258 meses de preços
+  de revenda de combustíveis no Brasil (ANP, jul/2001–jan/2023), nos recortes Brasil,
+  regiões e estados, em conformidade com os princípios FAIR.
+references:
+  - type: dataset
+    title: "Preços de Combustíveis Brasil"
+    authors:
+      - family-names: Fidelis
+        given-names: Matheus
+    year: 2023
+    url: "https://www.kaggle.com/datasets/fidelissauro/combustiveis-brasil"

@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Artigo acadêmico: análise exploratória reprodutível de 258 meses de preços de revenda de combustíveis no Brasil (ANP, 2001–2023), com pipeline em Python e aderência aos princípios FAIR.">
+  <meta name="author" content="Luan Fernando, Miguel Marreiros">
+  <meta name="keywords" content="preços de combustíveis, ANP, análise exploratória de dados, pandas, paridade etanol-gasolina, princípios FAIR">
+  <meta name="citation_title" content="Preços de revenda de combustíveis no Brasil (2001–2023): evolução, desigualdade regional e paridade etanol/gasolina">
+  <meta name="citation_author" content="Luan Fernando">
+  <meta name="citation_author" content="Miguel Marreiros">
+  <meta name="citation_publication_date" content="2026">
+  <title>Preços de revenda de combustíveis no Brasil (2001–2023): evolução, desigualdade regional e paridade etanol/gasolina</title>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "Preços de revenda de combustíveis no Brasil (2001–2023): evolução, desigualdade regional e paridade etanol/gasolina",
+    "inLanguage": "pt-BR",
+    "datePublished": "2026",
+    "author": [
+      {"@type": "Person", "name": "Luan Fernando"},
+      {"@type": "Person", "name": "Miguel Marreiros"}
+    ],
+    "keywords": "preços de combustíveis, ANP, análise exploratória de dados, pandas, paridade etanol-gasolina, princípios FAIR",
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "codeRepository": "https://github.com/LuanFernand0/precos-combustiveis-brasil",
+    "isBasedOn": "https://www.kaggle.com/datasets/fidelissauro/combustiveis-brasil"
+  }
+  </script>
+
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --text: #1f2937;
+      --text-muted: #4b5563;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --code-bg: #f1f5f9;
+      --font-serif: "Merriweather", Georgia, serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      background-color: var(--bg);
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--surface);
+      padding: 3.5rem 4rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    /* Cabeçalho acadêmico */
+    header { border-bottom: 2px solid var(--border); padding-bottom: 2rem; margin-bottom: 2.5rem; }
+
+    h1.paper-title {
+      font-family: var(--font-sans);
+      font-size: 2.1rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--primary);
+      margin-bottom: 1.2rem;
+      text-wrap: balance;
+    }
+
+    .meta-block { font-family: var(--font-sans); font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+    .authors { font-weight: 600; color: var(--text); }
+    .affiliations { font-style: italic; }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; font-family: var(--font-sans); }
+    .badge { display: inline-flex; font-size: 0.75rem; line-height: 1; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+    .badge span { padding: 0.35rem 0.5rem; }
+    .badge span:first-child { background: var(--code-bg); color: var(--text-muted); }
+    .badge span:last-child { background: var(--primary); color: #fff; font-weight: 600; }
+
+    .repo-badge {
+      display: inline-block;
+      margin-top: 1rem;
+      margin-right: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-decoration: none;
+      color: var(--primary);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+    .repo-badge:hover, .repo-badge:focus-visible { background: #e2e8f0; }
+
+    /* Resumo */
+    .abstract-box {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      border-left: 4px solid var(--primary-light);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .abstract-box h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--primary); }
+    .abstract-box p { font-size: 0.95rem; line-height: 1.6; margin-bottom: 0; }
+    .keywords { margin-top: 0.8rem; font-size: 0.9rem; color: var(--text-muted); }
+
+    /* Sumário */
+    nav.toc { font-family: var(--font-sans); background: #fdfefe; border: 1px solid var(--border); border-radius: 6px; padding: 1.2rem 1.8rem; margin-bottom: 2.5rem; }
+    nav.toc h4 { font-size: 1rem; color: var(--primary); margin-bottom: 0.6rem; }
+    nav.toc ol { padding-left: 1.2rem; }
+    nav.toc li { margin: 0.3rem 0; }
+    nav.toc a { color: var(--text-muted); text-decoration: none; font-size: 0.92rem; }
+    nav.toc a:hover { color: var(--primary-light); text-decoration: underline; }
+
+    /* Seções e tipografia */
+    section { margin-bottom: 2.5rem; }
+    h2 { font-family: var(--font-sans); font-size: 1.45rem; font-weight: 600; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-bottom: 1rem; margin-top: 2rem; }
+    h3.sub { font-family: var(--font-sans); font-size: 1.12rem; font-weight: 600; color: var(--text); margin: 1.8rem 0 0.7rem; }
+    p { margin-bottom: 1.2rem; text-align: justify; hyphens: auto; }
+    section ul, section ol.steps { margin: 0 0 1.2rem 1.4rem; }
+    section li { margin-bottom: 0.4rem; }
+    a { color: var(--primary); }
+
+    .rq-list { list-style: none; margin: 0 0 1.2rem 0; }
+    .rq-list li { font-family: var(--font-sans); font-size: 0.95rem; line-height: 1.6; border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 0 6px 6px 0; padding: 0.7rem 1rem; margin-bottom: 0.6rem; }
+    .rq-list strong { color: var(--primary); }
+
+    .answer { font-family: var(--font-sans); font-size: 0.95rem; line-height: 1.6; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.9rem 1.1rem; margin-bottom: 1.2rem; }
+    .answer strong { color: var(--primary); }
+
+    /* Figuras, visualizações e código */
+    figure { margin: 2rem 0; text-align: center; }
+    figure img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; }
+    .chart-container { width: 100%; min-height: 420px; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
+    .chart-container.tall { min-height: 680px; }
+    .chart-fallback { font-family: var(--font-sans); font-size: 0.9rem; color: var(--text-muted); padding: 2rem 1rem; }
+    figcaption { font-family: var(--font-sans); font-size: 0.85rem; line-height: 1.5; color: var(--text-muted); margin-top: 0.6rem; text-align: center; }
+
+    .chart-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: center; margin-bottom: 0.6rem; font-family: var(--font-sans); font-size: 0.85rem; color: var(--text-muted); }
+    .chart-controls button, .chart-controls select { font: inherit; color: var(--primary); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0.35rem 0.7rem; cursor: pointer; }
+    .chart-controls button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .chart-controls button:focus-visible, .chart-controls select:focus-visible { outline: 2px solid var(--primary-light); outline-offset: 2px; }
+
+    pre, code { font-family: Consolas, "Courier New", monospace; font-size: 0.88rem; background-color: var(--code-bg); }
+    code { padding: 0.2rem 0.4rem; border-radius: 3px; }
+    pre { padding: 1rem; border-radius: 6px; overflow-x: auto; margin-bottom: 1.2rem; border: 1px solid var(--border); line-height: 1.55; text-align: left; }
+    pre code { padding: 0; background: none; }
+
+    /* Tabelas */
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+    table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: 0.88rem; line-height: 1.45; }
+    caption { caption-side: top; text-align: left; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    th, td { padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    thead th { color: var(--primary); border-bottom: 2px solid var(--border); font-weight: 600; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    /* FAIR */
+    .fair-box { font-family: var(--font-sans); border: 1px solid #bfdbfe; background-color: #eff6ff; border-radius: 6px; padding: 1.25rem; margin-top: 1rem; margin-bottom: 1.2rem; }
+    .fair-box h3 { font-size: 1rem; color: #1e40af; margin-bottom: 0.5rem; }
+    .fair-box ul { margin-left: 1.2rem; margin-bottom: 0; font-size: 0.92rem; color: #1e3a8a; }
+    .fair-box code { background: #dbeafe; }
+
+    /* Referências */
+    .references ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-muted); }
+    .references li { margin-bottom: 0.6rem; overflow-wrap: anywhere; }
+
+    footer { font-family: var(--font-sans); font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 2.5rem; }
+
+    @media (max-width: 768px) {
+      body { padding: 0.5rem; font-size: 1rem; }
+      .container { padding: 1.5rem 1.1rem; }
+      h1.paper-title { font-size: 1.5rem; }
+      h2 { font-size: 1.25rem; }
+      p { text-align: left; hyphens: manual; }
+      nav.toc { padding: 1rem 1.2rem; }
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .container { border: 0; box-shadow: none; padding: 0; max-width: none; }
+      .chart-controls { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1 class="paper-title">Preços de revenda de combustíveis no Brasil (2001–2023): evolução, desigualdade regional e paridade etanol/gasolina</h1>
+
+      <div class="meta-block authors">
+        Luan Fernando, Miguel Marreiros
+      </div>
+
+      <div class="meta-block affiliations">
+        Bacharelado em Sistemas de Informação — [Nome da Instituição]<br>
+        Disciplina: Linguagem de Programação VI — Análise e Visualização de Dados com Python (6º período, [Semestre])
+      </div>
+
+      <div class="badges" aria-label="Metadados do projeto">
+        <span class="badge"><span>código</span><span>MIT</span></span>
+        <span class="badge"><span>dados e texto</span><span>CC BY 4.0</span></span>
+        <span class="badge"><span>Python</span><span>3.13</span></span>
+        <span class="badge"><span>pandas</span><span>3.0.5</span></span>
+        <span class="badge"><span>dados</span><span>ANP · jul/2001–jan/2023</span></span>
+        <span class="badge"><span>ciência aberta</span><span>FAIR</span></span>
+      </div>
+
+      <a href="https://github.com/LuanFernand0/precos-combustiveis-brasil" class="repo-badge" target="_blank" rel="noopener noreferrer">
+        📦 Ver repositório no GitHub (código e dados)
+      </a>
+      <a href="https://github.com/LuanFernand0/precos-combustiveis-brasil/blob/main/data/data_dictionary.md" class="repo-badge" target="_blank" rel="noopener noreferrer">
+        📖 Dicionário de dados
+      </a>
+    </header>
+
+    <div class="abstract-box">
+      <h3>Resumo</h3>
+      <p>
+        Os preços dos combustíveis afetam diretamente o custo de vida e do transporte no Brasil, mas a série pública da
+        Agência Nacional do Petróleo, Gás Natural e Biocombustíveis (ANP) raramente é explorada de forma reprodutível.
+        Este artigo analisa 258 meses (julho de 2001 a janeiro de 2023) de preços nominais de revenda de sete
+        combustíveis, nos recortes Brasil, regiões e estados. Um pipeline determinístico em Python (pandas) verifica a
+        integridade dos arquivos, recupera de forma rastreável 16 registros com chave ausente, converte os dados para o
+        formato longo e deriva métricas de variação, dispersão e paridade. Os resultados mostram que (i) os preços
+        evoluem em degraus, com choques concentrados em 2001–2005 e 2020–2022, e que a maior variação mensal da
+        gasolina é a queda de 16,6&nbsp;% em julho de 2022; (ii) a desigualdade entre estados é moderada para gasolina
+        e diesel e maior para etanol e GLP, com o Acre como estado de gasolina mais cara em 75&nbsp;% dos meses; e
+        (iii) o etanol foi vantajoso em 69&nbsp;% dos meses na média nacional, mas em apenas 30&nbsp;% das observações
+        estaduais, concentradas em Mato Grosso, São Paulo, Goiás e Paraná. Código, dados e dicionário de variáveis são
+        publicados segundo os princípios FAIR.
+      </p>
+      <div class="keywords">
+        <strong>Palavras-chave:</strong> preços de combustíveis; ANP; análise exploratória de dados; pandas; paridade etanol-gasolina; princípios FAIR.
+      </div>
+    </div>
+
+    <nav class="toc" aria-label="Sumário">
+      <h4>Sumário</h4>
+      <ol>
+        <li><a href="#intro">Introdução</a></li>
+        <li><a href="#metodologia">Metodologia e Pipeline de Dados</a></li>
+        <li><a href="#resultados">Resultados e Discussão</a></li>
+        <li><a href="#conclusao">Conclusão</a></li>
+        <li><a href="#fair">Disponibilidade dos Dados e Declaração FAIR</a></li>
+        <li><a href="#referencias">Referências</a></li>
+      </ol>
+    </nav>
+
+    <!-- 1. Introdução -->
+    <section id="intro">
+      <h2>1. Introdução</h2>
+      <p>
+        O Brasil movimenta a maior parte de suas cargas e passageiros por rodovias, de modo que o preço dos
+        combustíveis se propaga para fretes, alimentos e passagens. Poucos preços são tão visíveis para a população:
+        eles estiveram no centro da greve dos caminhoneiros de 2018 e do debate tributário de 2022. Além disso, a
+        frota <em>flex</em> coloca o consumidor diante de uma decisão recorrente — abastecer com etanol ou com
+        gasolina — cuja resposta depende do estado e da época do ano.
+      </p>
+      <p>
+        A ANP acompanha esses preços desde 2001 por meio de uma pesquisa semanal em postos revendedores e publica os
+        resultados como dados abertos (ANP, 2026a). Dados abertos, porém, só geram conhecimento auditável quando
+        acompanhados de um fluxo de tratamento documentado: a base usada neste trabalho, por exemplo, contém registros
+        sem identificação de estado e um mês inteiro sem coleta, problemas que passariam despercebidos em uma análise
+        apressada. Este artigo trata a série como um problema de engenharia e de análise de dados e responde a três
+        perguntas de pesquisa:
+      </p>
+      <ul class="rq-list">
+        <li><strong>RQ1.</strong> Como evoluíram os preços médios de revenda dos principais combustíveis entre julho de 2001 e janeiro de 2023, e em que momentos se concentram os choques de preço?</li>
+        <li><strong>RQ2.</strong> Qual é a magnitude da desigualdade de preços entre as unidades da federação, e ela é persistente — os mesmos estados permanecem os mais caros?</li>
+        <li><strong>RQ3.</strong> Onde e quando o etanol hidratado foi economicamente vantajoso frente à gasolina, segundo a regra de paridade de 70&nbsp;%?</li>
+      </ul>
+      <p>
+        A Seção 2 descreve a fonte e o pipeline de dados; a Seção 3 apresenta e discute os resultados de cada pergunta;
+        a Seção 4 sintetiza as conclusões e as limitações; e a Seção 5 declara a aderência do projeto aos princípios
+        FAIR (WILKINSON <em>et al.</em>, 2016).
+      </p>
+    </section>
+
+    <!-- 2. Metodologia -->
+    <section id="metodologia">
+      <h2>2. Metodologia e Pipeline de Dados</h2>
+
+      <h3 class="sub">2.1 Fonte e granularidade dos dados</h3>
+      <p>
+        A fonte primária é o Levantamento de Preços de Combustíveis (LPC) da ANP, pesquisa semanal de preços de
+        revenda ao consumidor. Utilizou-se a agregação mensal publicada por Fidelis (2023) no Kaggle, mantida pelo
+        projeto Economia Popular, composta por três arquivos CSV com a mesma estrutura em três recortes geográficos
+        (Tabela&nbsp;1). Cada linha traz, para sete combustíveis, o preço médio, o mínimo e o máximo de revenda no mês
+        (21 colunas de preço). A granularidade é, portanto, <strong>mês × local × combustível</strong>, de julho de
+        2001 a janeiro de 2023. Os valores são nominais, em reais correntes.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Tabela 1 — Arquivos brutos utilizados (<code>data/raw/</code>).</caption>
+          <thead>
+            <tr><th>Arquivo</th><th>Recorte</th><th class="num">Linhas</th><th class="num">Colunas</th><th>Observação</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>combustiveis-brasil.csv</code></td><td>Brasil</td><td class="num">258</td><td class="num">24</td><td>Série nacional</td></tr>
+            <tr><td><code>combustiveis-regioes.csv</code></td><td>5 grandes regiões</td><td class="num">1.290</td><td class="num">25</td><td>258 meses × 5 regiões</td></tr>
+            <tr><td><code>combustiveis-estados.csv</code></td><td>27 UFs</td><td class="num">6.966</td><td class="num">26</td><td>16 linhas com chave vazia</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub">2.2 Pipeline de tratamento</h3>
+      <p>
+        O pipeline (<code>src/etl.py</code>) segue o padrão <em>extract–transform–load</em> e é determinístico: não
+        usa aleatoriedade nem data e hora, e mantém ordenação estável. Os arquivos brutos nunca são editados; toda
+        decisão é tomada em código e registrada em <code>data/processed/relatorio_qualidade.json</code>. As etapas são:
+      </p>
+      <ol class="steps">
+        <li><strong>Leitura tipada e verificação de integridade.</strong> Os CSVs são lidos com codificação (UTF-8), separador e decimal declarados. As chaves são lidas como texto — o mês vem como <code>"07"</code> e uma inferência automática o converteria em <code>7</code> — e os preços como <code>float64</code>. O SHA-256 de cada arquivo e o conjunto de colunas esperado são conferidos antes de qualquer transformação.</li>
+        <li><strong>Recuperação de chaves órfãs.</strong> No arquivo de estados, 16 linhas trazem preços válidos, mas <code>referencia</code>, <code>ano</code>, <code>mes</code>, <code>regiao</code> e <code>estado</code> vazios. A inspeção mostrou que cada uma aparece ao final do bloco de um mês em que falta exatamente uma UF — sempre o Amapá — e que seus preços são coerentes com a série do Amapá nos meses vizinhos (16 de 16 casos). A regra de recuperação é determinística (mês da linha anterior + única UF ausente); a linha recebe a marca <code>chave_recuperada = True</code> e, se a regra não se aplicasse sem ambiguidade, seria descartada com registro.</li>
+        <li><strong>Normalização geográfica.</strong> Nomes em maiúsculas e sem acento (<code>SAO PAULO</code>, <code>CENTRO OESTE</code>) são mapeados para nome oficial e sigla da UF; rótulos fora do domínio interrompem a execução.</li>
+        <li><strong>Conversão para o formato longo.</strong> As 21 colunas de preço são reorganizadas em uma linha por combustível, seguindo o princípio de dados organizados (<em>tidy data</em>) de Wickham (2014). O resultado tem 44.798 observações.</li>
+        <li><strong>Tratamento de valores ausentes.</strong> Nenhum preço é imputado. As 14.800 células vazias são ausências estruturais — a gasolina aditivada só é pesquisada desde outubro de 2020, o diesel S10 desde dezembro de 2012 e o GNV não é vendido em todas as UFs — e imputá-las criaria preços que nunca existiram. Elas não geram registro e sua contagem é auditada. Setembro de 2020, mês em que a ANP interrompeu a pesquisa para trocar a empresa contratada e a metodologia (BRASIL, 2020; NOVACANA, 2020), permanece como lacuna.</li>
+        <li><strong>Métricas derivadas e validações.</strong> Calculam-se a amplitude de preços (máximo − mínimo), a variação mensal e em 12 meses e a razão etanol/gasolina. Valida-se que mínimo ≤ média ≤ máximo e que não há duplicatas (nenhuma violação encontrada); inconsistências seriam sinalizadas em <code>flag_inconsistente</code>, não removidas.</li>
+        <li><strong>Persistência.</strong> As tabelas tratadas são gravadas em CSV comprimido (<code>.csv.gz</code>), formato aberto legível por qualquer ferramenta sem dependências adicionais.</li>
+      </ol>
+
+      <p>O trecho a seguir mostra a leitura tipada e o núcleo da regra de recuperação de chaves:</p>
+<pre><code># src/etl.py — leitura sem inferência de tipos nas chaves
+df = pd.read_csv(
+    caminho, sep=",", encoding="utf-8", decimal=".",
+    dtype={**{c: "string" for c in chaves}, **{c: "float64" for c in precos}},
+)
+
+# src/etl.py — recuperação rastreável das linhas sem chave
+orfas = df.index[df[CHAVES_BRUTAS].isna().all(axis=1)]
+referencia_herdada = df["referencia"].ffill()          # mês da linha anterior
+for i in orfas:
+    ref = referencia_herdada.loc[i]
+    presentes = set(df.loc[df["referencia"] == ref, "estado"].dropna())
+    ausentes = sorted(todas_ufs - presentes)
+    if pd.notna(ref) and len(ausentes) == 1:           # só recupera sem ambiguidade
+        uf = ausentes[0]
+        df.loc[i, CHAVES_BRUTAS] = [ref, ref[:4], ref[5:7], regiao_da_uf[uf], uf]
+        df.loc[i, "chave_recuperada"] = True
+    else:
+        descartar.append(i)                            # registrado no relatório</code></pre>
+
+      <p>
+        Como a série tem um mês sem coleta, a variação percentual não pode ser calculada por posição
+        (<code>pct_change</code> compararia outubro com agosto de 2020). O pipeline faz a comparação por calendário,
+        juntando cada observação ao preço do mês-calendário anterior:
+      </p>
+<pre><code>def _variacao(df, meses, nome):
+    chave = ["nivel_geografico", "_local", "combustivel", "data"]
+    anterior = df[chave + ["preco_medio"]].rename(columns={"preco_medio": "_anterior"})
+    anterior["data"] = anterior["data"] + pd.DateOffset(months=meses)
+    saida = df.merge(anterior, on=chave, how="left", validate="one_to_one")
+    saida[nome] = ((saida["preco_medio"] / saida["_anterior"] - 1) * 100).round(4)
+    return saida.drop(columns="_anterior")</code></pre>
+
+      <h3 class="sub">2.3 Métodos de análise</h3>
+      <p>
+        A análise exploratória (<code>notebooks/analise_exploratoria.ipynb</code> e <code>src/analise.py</code>) usa
+        pandas (MCKINNEY, 2022) e NumPy (HARRIS <em>et al.</em>, 2020). Para a RQ1, os choques são identificados como
+        <em>outliers</em> da variação mensal pelas cercas de Tukey (1977), isto é, valores fora de
+        [Q1&nbsp;−&nbsp;1,5·IQR, Q3&nbsp;+&nbsp;1,5·IQR]. Para a RQ2, a desigualdade entre estados é medida pelo
+        coeficiente de variação (desvio-padrão ÷ média) dos preços médios das UFs em cada mês, e a posição de cada
+        estado pelo <strong>índice relativo</strong> — preço da UF dividido pela mediana das UFs no mesmo mês,
+        vezes 100. Por ser uma razão dentro do mês, o índice não é afetado pela inflação, o que permite comparar duas
+        décadas de preços nominais. A persistência do ordenamento é avaliada pela correlação de postos de Spearman.
+        Para a RQ3, adota-se a regra prática segundo a qual o etanol hidratado compensa quando custa até 70&nbsp;% do
+        preço da gasolina, dado seu menor rendimento por litro. As figuras estáticas foram produzidas com Matplotlib
+        (HUNTER, 2007) e seaborn (WASKOM, 2021), e os gráficos interativos com Plotly.js (PLOTLY, 2026).
+      </p>
+    </section>
+
+    <!-- 3. Resultados -->
+    <section id="resultados">
+      <h2>3. Resultados e Discussão</h2>
+
+      <h3 class="sub">3.1 RQ1 — Evolução dos preços e choques</h3>
+      <p>
+        A Figura&nbsp;1 apresenta a série nacional. No modo de índice, que permite comparar produtos de unidades
+        diferentes, fica evidente que os combustíveis não encareceram no mesmo ritmo: em termos nominais, o diesel
+        multiplicou seu preço por 7,6 no período, o GNV por 6,5 e o GLP por 6,3, enquanto a gasolina triplicou
+        (Tabela&nbsp;2). Como consequência, o diesel — que em 2001 custava metade do preço da gasolina — passou a
+        custar mais do que ela em julho de 2022 e assim permaneceu nos sete meses finais da série.
+      </p>
+
+      <figure>
+        <div class="chart-controls" role="group" aria-label="Modo de exibição da Figura 1">
+          <button type="button" id="btn-indice" aria-pressed="true">Índice (jul/2001 = 100)</button>
+          <button type="button" id="btn-preco" aria-pressed="false">Preço nominal (R$/L)</button>
+        </div>
+        <div id="fig-serie" class="chart-container"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <figcaption>
+          Figura 1 — Preço médio nacional de revenda, jul/2001–jan/2023 (interativa: alterne o modo e passe o cursor
+          sobre as linhas). Marcos: ① liberação dos preços dos derivados (jan/2002); ② greve dos caminhoneiros
+          (mai/2018); ③ início da pandemia de Covid-19 (abr/2020); ④ primeiro mês sob a Lei Complementar nº&nbsp;194
+          (jul/2022). No modo de preço são exibidos apenas os combustíveis vendidos por litro. Setembro de 2020 não
+          foi pesquisado pela ANP. Fonte: elaboração própria com dados da ANP.
+        </figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Tabela 2 — Série nacional por combustível: preços nominais, variação acumulada e comportamento da variação mensal.</caption>
+          <thead>
+            <tr>
+              <th>Combustível</th><th class="num">Jul/2001</th><th class="num">Jan/2023</th><th class="num">Variação acumulada</th>
+              <th class="num">Pico (mês)</th><th class="num">Desvio-padrão da variação mensal</th><th class="num">Meses <em>outliers</em></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Gasolina comum (R$/L)</td><td class="num">1,68</td><td class="num">5,05</td><td class="num">+200,3&nbsp;%</td><td class="num">7,28 (mai/2022)</td><td class="num">2,81&nbsp;p.p.</td><td class="num">39</td></tr>
+            <tr><td>Etanol hidratado (R$/L)</td><td class="num">1,01</td><td class="num">3,88</td><td class="num">+284,4&nbsp;%</td><td class="num">5,37 (nov/2021)</td><td class="num">5,30&nbsp;p.p.</td><td class="num">31</td></tr>
+            <tr><td>Óleo diesel (R$/L)</td><td class="num">0,83</td><td class="num">6,33</td><td class="num">+663,3&nbsp;%</td><td class="num">7,46 (jul/2022)</td><td class="num">2,75&nbsp;p.p.</td><td class="num">44</td></tr>
+            <tr><td>GLP (R$/botijão 13&nbsp;kg)</td><td class="num">17,19</td><td class="num">108,27</td><td class="num">+529,7&nbsp;%</td><td class="num">113,51 (abr/2022)</td><td class="num">2,34&nbsp;p.p.</td><td class="num">41</td></tr>
+            <tr><td>GNV (R$/m³)</td><td class="num">0,73</td><td class="num">4,73</td><td class="num">+547,9&nbsp;%</td><td class="num">5,30 (jun/2022)</td><td class="num">1,99&nbsp;p.p.</td><td class="num">34</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        A distribuição da variação mensal (Figura&nbsp;2) revela o mecanismo por trás dessas curvas. As medianas ficam
+        entre 0,1&nbsp;% e 0,5&nbsp;% ao mês e as caixas são estreitas, mas as caudas são longas: os preços passam a
+        maior parte do tempo quase parados e mudam em degraus. O etanol é a exceção, com dispersão cerca de duas vezes
+        maior que a dos derivados de petróleo (desvio-padrão de 5,30 contra 2,81 pontos percentuais da gasolina), o
+        que é coerente com um produto agrícola sujeito ao ciclo de safra. Pelo critério de Tukey, a gasolina tem 39
+        meses atípicos entre 256 variações observadas, e eles não se distribuem ao acaso: 14 ocorrem entre 2001 e
+        2005, 12 nos quatorze anos de 2006 a 2019 e 13 nos três anos de 2020 a 2022.
+      </p>
+
+      <figure>
+        <img src="assets/fig_variacao_mensal.png" width="1728" height="878" loading="lazy"
+             alt="Boxplots horizontais da variação mensal do preço médio nacional de cinco combustíveis. O etanol tem a caixa mais larga; a gasolina tem um ponto isolado em menos 16,6 por cento, em julho de 2022; novembro de 2002 aparece como extremo positivo para etanol, gasolina e diesel.">
+        <figcaption>
+          Figura 2 — Distribuição da variação mensal do preço médio nacional por combustível. Os círculos são meses
+          fora das cercas de Tukey (1,5 × IQR); os rótulos indicam os extremos discutidos no texto. Fonte: elaboração própria.
+        </figcaption>
+      </figure>
+
+      <p>
+        Os extremos coincidem com eventos conhecidos do setor. Em janeiro de 2002, mês em que terminou o período de
+        transição para a liberação dos preços dos derivados, a gasolina caiu 10,5&nbsp;%. Em novembro do mesmo ano, em
+        meio à forte desvalorização cambial, ocorreu o maior salto simultâneo da série: +12,3&nbsp;% na gasolina,
+        +18,3&nbsp;% no diesel e +28,1&nbsp;% no etanol. Em maio de 2018, mês da greve dos caminhoneiros, o diesel
+        subiu 5,7&nbsp;% e recuou 5,6&nbsp;% em junho, após a subvenção federal. Em abril e maio de 2020, com o
+        colapso da demanda no início da pandemia de Covid-19, a gasolina caiu 8,9&nbsp;% e 6,1&nbsp;%, chegando a
+        R$&nbsp;3,82. Seguiu-se a alta mais longa da série, que levou a gasolina a R$&nbsp;7,28 em maio de 2022, com
+        destaque para março de 2021 (+10,8&nbsp;%) e março de 2022 (+12,4&nbsp;% no diesel, após a invasão da Ucrânia).
+      </p>
+      <p>
+        O maior movimento da gasolina em toda a série é a queda de julho de 2022 (−16,6&nbsp;%), seguida de novas
+        quedas em agosto (−10,9&nbsp;%) e setembro (−7,2&nbsp;%), que levaram o litro de R$&nbsp;7,25 para
+        R$&nbsp;5,00 em três meses. O movimento sucede a Lei Complementar nº&nbsp;194, de 23 de junho de 2022, que
+        classificou os combustíveis como bens essenciais, limitando o ICMS à alíquota geral de cada estado, e zerou
+        tributos federais sobre gasolina e etanol (BRASIL, 2022). O etanol acompanhou a queda (−11,0&nbsp;% em julho),
+        mas o diesel, cujos tributos federais já estavam zerados, ainda subiu 3,6&nbsp;% naquele mês — padrão
+        compatível com um choque de origem tributária, e não de custo. Trata-se, contudo, de uma associação temporal:
+        a base não contém cotações de petróleo ou câmbio que permitam isolar o efeito da lei.
+      </p>
+      <p>
+        As variações mensais de gasolina e diesel (r&nbsp;=&nbsp;0,68) e de gasolina e etanol (r&nbsp;=&nbsp;0,67) são
+        fortemente correlacionadas: os dois derivados partem da mesma matéria-prima, e o etanol, além de substituto da
+        gasolina na bomba, compõe a própria gasolina C como anidro. Já o GLP tem dinâmica própria (r entre 0,24 e 0,37
+        com os demais), o que sugere regras de reajuste distintas para o gás de cozinha.
+      </p>
+      <p class="answer">
+        <strong>Resposta à RQ1.</strong> Entre julho de 2001 e janeiro de 2023 todos os combustíveis encareceram em
+        termos nominais, mas em ritmos muito diferentes (de +200&nbsp;% na gasolina a +663&nbsp;% no diesel). Os
+        preços evoluem em degraus, e os choques concentram-se em dois períodos — a abertura do mercado e a crise
+        cambial de 2001–2005 e o ciclo pandemia–guerra–desoneração de 2020–2022 —, que reúnem 27 dos 39 meses
+        atípicos da gasolina.
+      </p>
+
+      <h3 class="sub">3.2 RQ2 — Desigualdade de preços entre estados</h3>
+      <p>
+        A Figura&nbsp;3 mostra o índice relativo de cada UF ao longo dos anos. Para a gasolina, a desigualdade é
+        moderada: o coeficiente de variação entre as 27 UFs é de 4,9&nbsp;% na média do período, e a UF mais cara
+        custa em média 1,23 vez o preço da mais barata. O diesel tem comportamento semelhante (6,0&nbsp;%; 1,27 vez).
+        Etanol e GLP são bem mais desiguais: 10,6&nbsp;% e 9,0&nbsp;% de coeficiente de variação, com razões
+        máximo/mínimo de 1,59 e 1,44. No etanol, São Paulo paga em média 23&nbsp;% menos que a UF mediana, enquanto
+        Acre, Roraima, Pará e Amapá pagam cerca de 14&nbsp;% mais.
+      </p>
+
+      <figure>
+        <div class="chart-controls">
+          <label for="sel-combustivel">Combustível:</label>
+          <select id="sel-combustivel">
+            <option value="gasolina_comum">Gasolina comum</option>
+            <option value="etanol_hidratado">Etanol hidratado</option>
+            <option value="oleo_diesel">Óleo diesel</option>
+            <option value="gas_cozinha_glp">GLP (botijão 13 kg)</option>
+          </select>
+        </div>
+        <div id="fig-relativo" class="chart-container tall"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <figcaption>
+          Figura 3 — Índice relativo de preço por UF e ano (mediana das UFs no mês = 100; média anual), 2002–2022.
+          Azul indica preço abaixo da mediana; vermelho, acima. UFs agrupadas por região, de cima para baixo: Norte,
+          Nordeste, Centro-Oeste, Sudeste e Sul. Interativa: escolha o combustível e passe o cursor sobre as células.
+          Fonte: elaboração própria.
+        </figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Tabela 3 — Desigualdade interestadual por combustível, jul/2001–jan/2023. Entre parênteses, o índice relativo médio da UF.</caption>
+          <thead>
+            <tr><th>Combustível</th><th class="num">CV médio</th><th class="num">Máx ÷ mín</th><th>UFs mais caras</th><th>UFs mais baratas</th><th class="num">Spearman 2001–06 × 2017–23</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Gasolina comum</td><td class="num">4,9&nbsp;%</td><td class="num">1,23</td><td>AC (112), RO (105), MT (105)</td><td>SP (94), PB (96), PR (96)</td><td class="num">0,13</td></tr>
+            <tr><td>Etanol hidratado</td><td class="num">10,6&nbsp;%</td><td class="num">1,59</td><td>AC (115), RR (114), PA (114)</td><td>SP (77), PR (84), GO (87)</td><td class="num">0,62</td></tr>
+            <tr><td>Óleo diesel</td><td class="num">6,0&nbsp;%</td><td class="num">1,27</td><td>AC (121), RR (111), MT (110)</td><td>PR (96), SP (97), PB (97)</td><td class="num">0,61</td></tr>
+            <tr><td>GLP (13&nbsp;kg)</td><td class="num">9,0&nbsp;%</td><td class="num">1,44</td><td>MT (125), AC (114), TO (111)</td><td>PE (92), RJ (93), BA (93)</td><td class="num">0,54</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        A geografia dos extremos é estável. O Acre teve a gasolina mais cara do país em 193 dos 258 meses
+        (75&nbsp;%), e quatro das cinco UFs mais caras em gasolina, diesel e GLP — e todas as cinco no etanol — são da
+        região Norte. No outro extremo, São Paulo teve a gasolina mais barata em 80 meses e o Paraná aparece entre as
+        mais baratas em três dos quatro produtos. O padrão é compatível com custos logísticos: estados distantes das
+        refinarias e dos portos, abastecidos por longos percursos rodoviários e fluviais, pagam mais, enquanto os
+        grandes polos de refino e de produção de etanol do Centro-Sul pagam menos. Mato Grosso ilustra bem essa
+        lógica: é o terceiro estado mais caro em gasolina e diesel e o mais caro em GLP, produtos que precisam chegar
+        de longe, mas o quarto mais barato em etanol, que produz localmente.
+      </p>
+      <p>
+        A persistência do ordenamento completo, porém, depende do produto. Para etanol, diesel e GLP, a correlação de
+        Spearman entre o <em>ranking</em> de 2001–2006 e o de 2017–2023 fica entre 0,54 e 0,62: quem era caro tende a
+        continuar caro. Para a gasolina, a correlação é de apenas 0,13. Como as diferenças entre a maioria dos estados
+        são pequenas nesse combustível, mudanças modestas — por exemplo, de alíquotas estaduais de ICMS — bastam para
+        reordenar o miolo do <em>ranking</em>; o Rio de Janeiro, por exemplo, passa de preços próximos da mediana na
+        década de 2000 (índice entre 97 e 100) para cerca de 9&nbsp;% acima dela entre 2017 e 2020, quando chega a
+        ter a gasolina mais cara do país (Figura&nbsp;3).
+      </p>
+
+      <figure>
+        <img src="assets/fig_dispersao_interestadual.png" width="1610" height="931" loading="lazy"
+             alt="Gráfico de linhas do coeficiente de variação do preço médio entre as 27 UFs, em média móvel de 12 meses, de 2002 a 2023. O etanol oscila entre 8 e 16 por cento, o GLP entre 7 e 11, o diesel entre 4 e 7 e a gasolina entre 4 e 6. Gasolina, diesel e GLP caem a partir de 2021.">
+        <figcaption>
+          Figura 4 — Coeficiente de variação do preço médio entre as 27 UFs (média móvel de 12 meses). Fonte: elaboração própria.
+        </figcaption>
+      </figure>
+
+      <p>
+        A Figura&nbsp;4 mostra que a desigualdade não tem tendência de longo prazo, mas tem episódios. A dispersão do
+        etanol atinge o máximo em 2004 e cai de forma acentuada em 2011. O movimento mais recente é o estreitamento de
+        2021–2022: entre 2020 e 2022, o coeficiente de variação anual recua de 6,9&nbsp;% para 4,2&nbsp;% no diesel,
+        de 6,2&nbsp;% para 4,3&nbsp;% na gasolina e de 10,4&nbsp;% para 7,3&nbsp;% no GLP. Uma hipótese compatível com
+        os dados é que o teto do ICMS de 2022 tenha aproximado a carga tributária entre os estados; como parte da
+        queda já ocorre em 2021, porém, ela não explica todo o movimento, e confirmá-la exigiria dados de alíquotas,
+        ausentes nesta base.
+      </p>
+      <p class="answer">
+        <strong>Resposta à RQ2.</strong> A desigualdade entre estados é moderada para gasolina e diesel (coeficiente
+        de variação de 5–6&nbsp;%) e cerca de duas vezes maior para etanol e GLP (9–11&nbsp;%). Os extremos são
+        persistentes — Norte no topo, com o Acre à frente; São Paulo e Paraná na base —, e o ordenamento completo é
+        moderadamente estável para etanol, diesel e GLP (ρ entre 0,54 e 0,62), mas não para a gasolina (ρ&nbsp;=&nbsp;0,13).
+      </p>
+
+      <h3 class="sub">3.3 RQ3 — Paridade etanol/gasolina</h3>
+      <p>
+        Na média nacional, o etanol custou 66,1&nbsp;% do preço da gasolina ao longo do período, variando de
+        51,2&nbsp;% (outubro de 2007) a 81,5&nbsp;% (abril de 2011), e ficou abaixo do limiar de 70&nbsp;% em
+        69,4&nbsp;% dos meses. Essa leitura, porém, esconde uma forte heterogeneidade: considerando as 6.950
+        observações estado-mês, o etanol foi vantajoso em apenas 30,0&nbsp;% delas. A Figura&nbsp;5 mostra onde.
+      </p>
+
+      <figure>
+        <div id="fig-paridade" class="chart-container tall"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <figcaption>
+          Figura 5 — Percentual dos meses de cada ano em que o etanol foi vantajoso (razão de preços ≤ 0,70), por UF,
+          2002–2022. UFs ordenadas pelo percentual no período completo. Interativa: passe o cursor para ver a razão
+          média do ano. Fonte: elaboração própria.
+        </figcaption>
+      </figure>
+
+      <p>
+        Somente quatro estados tiveram etanol vantajoso na maioria dos meses: Mato Grosso (83,3&nbsp;%), São Paulo
+        (79,1&nbsp;%), Goiás (77,5&nbsp;%) e Paraná (59,3&nbsp;%), seguidos de Minas Gerais (48,4&nbsp;%) e Mato
+        Grosso do Sul (42,2&nbsp;%) — justamente o cinturão produtor de cana e etanol do Centro-Sul. No extremo
+        oposto, o biocombustível praticamente nunca compensou no Amapá (0,8&nbsp;% dos meses), em Roraima
+        (1,6&nbsp;%), no Pará (3,1&nbsp;%) e no Piauí (3,5&nbsp;%). A média nacional é, portanto, dominada pelos
+        grandes mercados produtores e não representa a situação da maior parte do território.
+      </p>
+
+      <figure>
+        <img src="assets/fig_paridade_regioes.png" width="1593" height="926" loading="lazy"
+             alt="Gráfico de linhas da razão de preços etanol/gasolina por região, em média móvel de 12 meses, com linha tracejada em 0,70. Norte e Nordeste ficam acima do limiar em quase todo o período; Sudeste e Centro-Oeste ficam abaixo até 2010 e oscilam em torno dele depois; todas as regiões sobem a partir de 2011.">
+        <figcaption>
+          Figura 6 — Razão de preços etanol/gasolina por região (média móvel de 12 meses) e limiar de paridade de 0,70. Fonte: elaboração própria.
+        </figcaption>
+      </figure>
+
+      <p>
+        A dimensão temporal é igualmente marcante (Figura&nbsp;6). Entre 2001 e 2010 a razão nacional média foi de
+        0,609, e o etanol foi vantajoso em 93,0&nbsp;% dos meses; entre 2011 e 2022 a média subiu para 0,701 e a
+        proporção caiu para 51,0&nbsp;%. A ruptura ocorre em 2011, quando a razão anual salta de 0,650 para 0,731, e
+        o mesmo degrau aparece em todas as regiões, inclusive no Sudeste, cuja razão anual sobe de 0,636 para 0,714
+        e passa a oscilar em torno do limiar. Na média do período, apenas Sudeste (0,640), Centro-Oeste (0,678) e Sul (0,695) ficam abaixo de
+        0,70; Nordeste (0,750) e Norte (0,786) ficam acima.
+      </p>
+      <p>
+        Há também um padrão sazonal: a razão nacional é menor entre junho e setembro (0,63–0,64), meses de safra da
+        cana-de-açúcar no Centro-Sul, e maior entre janeiro e março (0,68–0,69), na entressafra. Para o consumidor de
+        um estado próximo do limiar, como Minas Gerais ou Mato Grosso do Sul, a resposta à pergunta “etanol ou
+        gasolina?” muda, portanto, ao longo do ano.
+      </p>
+      <p class="answer">
+        <strong>Resposta à RQ3.</strong> O etanol foi vantajoso de forma consistente apenas no cinturão produtor
+        (MT, SP, GO e PR), sobretudo até 2010 e nos meses de safra. Fora dele — em especial no Norte e em parte do
+        Nordeste —, a gasolina foi a escolha econômica em quase todo o período. A média nacional (69&nbsp;% dos meses)
+        superestima a competitividade do etanol vista do nível estadual (30&nbsp;% das observações).
+      </p>
+    </section>
+
+    <!-- 4. Conclusão -->
+    <section id="conclusao">
+      <h2>4. Conclusão</h2>
+      <p>
+        Este trabalho construiu um pipeline reprodutível para a série mensal de preços de revenda de combustíveis da
+        ANP e o utilizou para responder a três perguntas. Em síntese: (i) os preços nominais evoluem em degraus, com
+        choques concentrados em 2001–2005 e 2020–2022, e o diesel foi o produto que mais encareceu, ultrapassando a
+        gasolina em 2022; (ii) a desigualdade entre estados é estrutural nos extremos — Norte mais caro, São Paulo e
+        Paraná mais baratos — e cerca de duas vezes maior para etanol e GLP do que para gasolina e diesel; e
+        (iii) a vantagem econômica do etanol é um fenômeno regional e sazonal, restrito ao cinturão produtor e
+        enfraquecido desde 2011. Do ponto de vista de engenharia de dados, o estudo mostra que mesmo uma base pequena
+        e bem avaliada pela comunidade exige validação: 16 registros sem chave e um mês sem coleta teriam distorcido a
+        série do Amapá e as variações de outubro de 2020 se tratados de forma ingênua.
+      </p>
+      <p><strong>Limitações.</strong></p>
+      <ul>
+        <li>Os preços são nominais. Comparações de nível ao longo do tempo misturam variação real e inflação; por isso as análises de desigualdade e de paridade usam razões dentro do mês, que não sofrem esse efeito.</li>
+        <li>A base é uma agregação mensal de terceiros sobre a pesquisa da ANP, congelada em janeiro de 2023. Não foi possível auditar a agregação a partir dos microdados, e a metodologia da pesquisa mudou em 2020.</li>
+        <li>A recuperação das 16 linhas do Amapá apoia-se em uma inferência (única UF ausente no mês) que, embora verificada, não pode ser confirmada na origem.</li>
+        <li>Médias estaduais ocultam a variação entre municípios, e o limiar de 70&nbsp;% é uma regra prática: o ponto de equilíbrio real depende do veículo.</li>
+        <li>A análise é descritiva. As associações com eventos (crise cambial, pandemia, Lei Complementar nº&nbsp;194) são temporais e não estabelecem causalidade.</li>
+      </ul>
+      <p><strong>Trabalhos futuros.</strong></p>
+      <ul>
+        <li>Deflacionar as séries pelo IPCA e incorporar cotações do petróleo Brent e da taxa de câmbio, para separar variação real, custo e tributação.</li>
+        <li>Substituir a agregação de terceiros pelos microdados semanais por município da ANP e estender a série além de janeiro de 2023.</li>
+        <li>Testar formalmente quebras estruturais (2011 na paridade; 2022 na dispersão) e a assimetria no repasse de altas e quedas ao consumidor.</li>
+      </ul>
+    </section>
+
+    <!-- 5. FAIR -->
+    <section id="fair">
+      <h2>5. Disponibilidade dos Dados e Declaração FAIR</h2>
+      <p>
+        Todo o material necessário para auditar e reproduzir este artigo — dados brutos, código, dados tratados,
+        dicionário de variáveis, notebook e figuras — está no repositório público do projeto.
+      </p>
+      <div class="fair-box">
+        <h3>Declaração de aderência aos princípios FAIR</h3>
+        <ul>
+          <li><strong>Findable (Localizável):</strong> repositório público com <code>README.md</code> contendo resumo executivo, palavras-chave e link perene para a fonte original; autoria, disciplina, semestre e instituição identificadas no cabeçalho de todos os artefatos; metadados legíveis por máquina nesta página (<em>schema.org</em>) e em <code>CITATION.cff</code>.</li>
+          <li><strong>Accessible (Acessível):</strong> código e dados obtidos por HTTPS, sem autenticação nem credenciais pagas; os dados brutos acompanham o repositório (1,1&nbsp;MB) com SHA-256 conferido pelo ETL; artigo publicado via GitHub Pages, com layout responsivo.</li>
+          <li><strong>Interoperable (Interoperável):</strong> dicionário completo em <code>data/data_dictionary.md</code> (significado, tipo e formato de cada variável); dados tratados em CSV comprimido (<code>.csv.gz</code>, UTF-8) e relatório de qualidade em JSON; datas em ISO&nbsp;8601 e UFs identificadas pela sigla oficial.</li>
+          <li><strong>Reusable (Reutilizável):</strong> código sob licença MIT; dados tratados, figuras e texto sob CC&nbsp;BY&nbsp;4.0; proveniência e licença dos dados brutos documentadas; ambiente recriável por <code>requirements.txt</code> com versões fixadas; pipeline determinístico com relatório de auditoria.</li>
+        </ul>
+      </div>
+      <p>Para clonar o repositório e reproduzir integralmente o pipeline:</p>
+<pre><code>git clone https://github.com/LuanFernand0/precos-combustiveis-brasil.git
+cd precos-combustiveis-brasil
+
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+python -m src.etl                  # data/raw  ->  data/processed
+python -m src.figuras              # data/processed  ->  docs/assets</code></pre>
+      <p>
+        Fonte original dos dados brutos:
+        <a href="https://www.kaggle.com/datasets/fidelissauro/combustiveis-brasil" target="_blank" rel="noopener noreferrer">kaggle.com/datasets/fidelissauro/combustiveis-brasil</a>.
+        Os números citados no texto estão reunidos em <code>docs/assets/numeros_chave.json</code>, gerado pelo próprio pipeline.
+      </p>
+    </section>
+
+    <!-- 6. Referências -->
+    <section id="referencias" class="references">
+      <h2>6. Referências</h2>
+      <ol>
+        <li>AGÊNCIA NACIONAL DO PETRÓLEO, GÁS NATURAL E BIOCOMBUSTÍVEIS (ANP). <strong>Série histórica do levantamento de preços</strong>. Rio de Janeiro: ANP, 2026a. Disponível em: https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/serie-historica-do-levantamento-de-precos. Acesso em: 16 nov. 2026.</li>
+        <li>AGÊNCIA NACIONAL DO PETRÓLEO, GÁS NATURAL E BIOCOMBUSTÍVEIS (ANP). <strong>Metadados</strong>: série histórica de preços de combustíveis. Rio de Janeiro: ANP, 2026b. Disponível em: https://www.gov.br/anp/pt-br/centrais-de-conteudo/dados-abertos/arquivos/shpc/metadados-serie-historica-precos-combustiveis.pdf. Acesso em: 16 nov. 2026.</li>
+        <li>BRASIL. Ministério de Minas e Energia. <strong>Relatório mensal do mercado de derivados de petróleo</strong>, n. 178. Brasília, DF: MME, out. 2020. Disponível em: https://www.gov.br/mme/pt-br/assuntos/secretarias/petroleo-gas-natural-e-biocombustiveis/publicacoes-1/relatorio-mensal-do-mercado-de-derivados-de-petroleo/2020/relatorio-mensal-de-mercado-out-20-178.pdf. Acesso em: 16 nov. 2026.</li>
+        <li>BRASIL. Lei Complementar nº 194, de 23 de junho de 2022. Altera a Lei nº 5.172, de 25 de outubro de 1966 (Código Tributário Nacional), e a Lei Complementar nº 87, de 13 de setembro de 1996, para considerar bens e serviços essenciais os relativos aos combustíveis, à energia elétrica, às comunicações e ao transporte coletivo. <strong>Diário Oficial da União</strong>: edição extra, Brasília, DF, 23 jun. 2022. Disponível em: https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp194.htm. Acesso em: 16 nov. 2026.</li>
+        <li>FIDELIS, Matheus. <strong>Preços de combustíveis Brasil</strong>. Versão 2. [<em>S. l.</em>]: Kaggle, 2023. Conjunto de dados. Disponível em: https://www.kaggle.com/datasets/fidelissauro/combustiveis-brasil. Acesso em: 16 nov. 2026.</li>
+        <li>HARRIS, Charles R. <em>et al.</em> Array programming with NumPy. <strong>Nature</strong>, London, v. 585, n. 7825, p. 357–362, 2020. DOI: 10.1038/s41586-020-2649-2.</li>
+        <li>HUNTER, John D. Matplotlib: a 2D graphics environment. <strong>Computing in Science &amp; Engineering</strong>, [<em>s. l.</em>], v. 9, n. 3, p. 90–95, 2007. DOI: 10.1109/MCSE.2007.55.</li>
+        <li>MCKINNEY, Wes. <strong>Python for data analysis</strong>: data wrangling with pandas, NumPy, and Jupyter. 3. ed. Sebastopol: O’Reilly Media, 2022.</li>
+        <li>NOVACANA. <strong>ANP retoma levantamento de preço nos postos e etanol é favorável perante a gasolina</strong>. Curitiba, 26 out. 2020. Disponível em: https://www.novacana.com/noticias/anp-retoma-levantamento-preco-postos-etanol-e-favoravel-perante-gasolina-20201026. Acesso em: 16 nov. 2026.</li>
+        <li>PLOTLY TECHNOLOGIES INC. <strong>Plotly JavaScript open source graphing library</strong>. Montreal: Plotly, 2026. Disponível em: https://plotly.com/javascript/. Acesso em: 16 nov. 2026.</li>
+        <li>TUKEY, John W. <strong>Exploratory data analysis</strong>. Reading: Addison-Wesley, 1977.</li>
+        <li>WASKOM, Michael L. seaborn: statistical data visualization. <strong>Journal of Open Source Software</strong>, [<em>s. l.</em>], v. 6, n. 60, p. 3021, 2021. DOI: 10.21105/joss.03021.</li>
+        <li>WICKHAM, Hadley. Tidy data. <strong>Journal of Statistical Software</strong>, [<em>s. l.</em>], v. 59, n. 10, p. 1–23, 2014. DOI: 10.18637/jss.v059.i10.</li>
+        <li>WILKINSON, Mark D. <em>et al.</em> The FAIR Guiding Principles for scientific data management and stewardship. <strong>Scientific Data</strong>, London, v. 3, art. 160018, 2016. DOI: 10.1038/sdata.2016.18.</li>
+      </ol>
+    </section>
+
+    <footer>
+      Luan Fernando, Miguel Marreiros — [Nome da Instituição], [Semestre]. Texto e figuras sob licença
+      <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>;
+      código sob licença MIT.
+    </footer>
+  </div>
+
+  <!-- Plotly.js (gráficos interativos) e dados agregados gerados por src/figuras.py -->
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <script src="assets/dados_graficos.js"></script>
+  <script>
+    (function () {
+      const D = window.DADOS_ARTIGO;
+      const alvos = ['fig-serie', 'fig-relativo', 'fig-paridade'];
+      if (!window.Plotly || !D) {
+        alvos.forEach(function (id) {
+          document.getElementById(id).innerHTML =
+            '<p class="chart-fallback">Não foi possível carregar o gráfico interativo (biblioteca Plotly.js ou dados indisponíveis). ' +
+            'As tabelas e as figuras estáticas desta seção apresentam os mesmos resultados.</p>';
+        });
+        return;
+      }
+      alvos.forEach(function (id) { document.getElementById(id).innerHTML = ''; });
+
+      const FONTE = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+      const TINTA = '#1f2937', SUAVE = '#4b5563', GRADE = '#e2e8f0';
+      const CONFIG = { responsive: true, displayModeBar: false };
+      const estreito = function () { return window.innerWidth < 600; };
+      const base = function () {
+        return {
+          font: { family: FONTE, size: estreito() ? 11 : 13, color: TINTA },
+          separators: ',.',
+          paper_bgcolor: '#fff',
+          plot_bgcolor: '#fff',
+          hoverlabel: { bgcolor: '#fff', bordercolor: GRADE, font: { family: FONTE, size: 12, color: TINTA } }
+        };
+      };
+
+      /* ---------- Figura 1: série nacional (índice × preço) ---------- */
+      const N = D.nacional;
+      const ordem = ['gasolina_comum', 'etanol_hidratado', 'oleo_diesel', 'gas_cozinha_glp', 'gas_natural_veicular_gnv'];
+      const porLitro = ['gasolina_comum', 'etanol_hidratado', 'oleo_diesel'];
+      const eventos = [
+        { x: '2002-01-01', texto: '①' },   // liberação dos preços dos derivados
+        { x: '2018-05-01', texto: '②' },   // greve dos caminhoneiros
+        { x: '2020-04-01', texto: '③' },   // início da pandemia de Covid-19
+        { x: '2022-07-01', texto: '④' }    // primeiro mês sob a LC nº 194/2022
+      ];
+
+      function desenharSerie(modo) {
+        const chaves = modo === 'preco' ? porLitro : ordem;
+        const tracos = chaves.map(function (c) {
+          const s = N.combustiveis[c];
+          return {
+            type: 'scatter', mode: 'lines', name: s.nome, x: N.datas,
+            y: modo === 'preco' ? s.preco : s.indice,
+            line: { color: s.cor, width: 2 },
+            hovertemplate: modo === 'preco' ? 'R$ %{y:.2f}<extra>' + s.nome + '</extra>'
+                                            : '%{y:.0f}<extra>' + s.nome + '</extra>'
+          };
+        });
+        const layout = Object.assign(base(), {
+          autosize: true,
+          height: 440,
+          margin: { t: 28, r: 16, l: estreito() ? 44 : 58, b: 40 },
+          hovermode: 'x unified',
+          showlegend: true,
+          legend: { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.14, yanchor: 'top', font: { color: TINTA } },
+          xaxis: { type: 'date', range: ['2001-04-01', '2023-07-01'], hoverformat: '%m/%Y', tickformat: '%Y',
+                   gridcolor: '#fff', linecolor: GRADE, tickfont: { color: SUAVE }, fixedrange: true },
+          yaxis: { title: { text: modo === 'preco' ? 'R$ por litro (nominal)' : 'Índice (jul/2001 = 100)', font: { color: SUAVE } },
+                   rangemode: 'tozero', gridcolor: GRADE, zeroline: false, tickfont: { color: SUAVE }, fixedrange: true },
+          shapes: eventos.map(function (e) {
+            return { type: 'line', x0: e.x, x1: e.x, yref: 'paper', y0: 0, y1: 1, line: { color: '#94a3b8', width: 1, dash: 'dot' } };
+          }),
+          annotations: eventos.map(function (e) {
+            return { x: e.x, yref: 'paper', y: 1, text: e.texto, showarrow: false, xanchor: 'center',
+                     yanchor: 'bottom', font: { size: 13, color: SUAVE } };
+          })
+        });
+        Plotly.react('fig-serie', tracos, layout, CONFIG);
+      }
+
+      const bIndice = document.getElementById('btn-indice');
+      const bPreco = document.getElementById('btn-preco');
+      let modoAtual = 'indice';
+      function escolher(modo) {
+        modoAtual = modo;
+        bIndice.setAttribute('aria-pressed', String(modo === 'indice'));
+        bPreco.setAttribute('aria-pressed', String(modo === 'preco'));
+        desenharSerie(modo);
+      }
+      bIndice.addEventListener('click', function () { escolher('indice'); });
+      bPreco.addEventListener('click', function () { escolher('preco'); });
+      escolher('indice');
+
+      /* ---------- Figura 3: índice relativo por UF e ano ---------- */
+      const R = D.relativo;
+      const DIVERGENTE = [[0, '#184f95'], [0.25, '#86b6ef'], [0.5, '#f0efec'], [0.75, '#f09a94'], [1, '#a82a2a']];
+      const eixoAnos = function () {
+        return { type: 'category', side: 'top', tickfont: { color: SUAVE }, fixedrange: true, ticks: '',
+                 tickangle: estreito() ? -90 : 0 };
+      };
+      const eixoUfs = function () {
+        return { type: 'category', autorange: 'reversed', tickfont: { color: SUAVE, size: 11 }, fixedrange: true, ticks: '' };
+      };
+      const barra = function (titulo) {
+        return { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.03, yanchor: 'top', thickness: 10, len: 0.7,
+                 outlinewidth: 0, title: { text: titulo, side: 'bottom', font: { size: 11, color: SUAVE } },
+                 tickfont: { size: 11, color: SUAVE } };
+      };
+
+      function desenharRelativo(c) {
+        const s = R.combustiveis[c];
+        const extra = R.ufs.map(function (uf, i) { return R.anos.map(function () { return [R.estados[i], R.regioes[i]]; }); });
+        const traco = {
+          type: 'heatmap', x: R.anos.map(String), y: R.ufs, z: s.z, customdata: extra,
+          zmin: 80, zmax: 120, zmid: 100, colorscale: DIVERGENTE, xgap: 2, ygap: 2,
+          colorbar: barra('Índice relativo — ' + s.nome + ' (mediana das UFs = 100)'),
+          hovertemplate: '<b>%{customdata[0]}</b> · %{customdata[1]}<br>%{x}: índice %{z:.1f}<extra></extra>'
+        };
+        const divisas = [];
+        for (let i = 1; i < R.ufs.length; i++) {
+          if (R.regioes[i] !== R.regioes[i - 1]) {
+            divisas.push({ type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: i - 0.5, y1: i - 0.5,
+                           line: { color: TINTA, width: 1 } });
+          }
+        }
+        const layout = Object.assign(base(), {
+          autosize: true, height: 680,
+          margin: { t: estreito() ? 44 : 28, r: 10, l: 34, b: 70 }, xaxis: eixoAnos(), yaxis: eixoUfs(), shapes: divisas
+        });
+        Plotly.react('fig-relativo', [traco], layout, CONFIG);
+      }
+      const seletor = document.getElementById('sel-combustivel');
+      seletor.addEventListener('change', function () { desenharRelativo(seletor.value); });
+      desenharRelativo(seletor.value);
+
+      /* ---------- Figura 5: % de meses com etanol vantajoso ---------- */
+      const P = D.paridade;
+      const SEQUENCIAL = [[0, '#f0efec'], [0.15, '#cde2fb'], [0.4, '#86b6ef'], [0.65, '#3987e5'], [0.85, '#184f95'], [1, '#0d366b']];
+      const extraP = P.ufs.map(function (uf, i) {
+        return P.anos.map(function (a, j) {
+          const r = P.z_razao[i][j];
+          return [P.estados[i], P.regioes[i], r === null ? '—' : r.toFixed(3).replace('.', ','), P.pct_total[i].toFixed(1).replace('.', ',')];
+        });
+      });
+      function desenharParidade() {
+        Plotly.react('fig-paridade', [{
+          type: 'heatmap', x: P.anos.map(String), y: P.ufs, z: P.z_pct, customdata: extraP,
+          zmin: 0, zmax: 100, colorscale: SEQUENCIAL, xgap: 2, ygap: 2,
+          colorbar: barra('% dos meses do ano com etanol vantajoso'),
+          hovertemplate: '<b>%{customdata[0]}</b> · %{customdata[1]}<br>%{x}: %{z:.0f}% dos meses · razão média %{customdata[2]}' +
+                         '<br>Período completo: %{customdata[3]}% dos meses<extra></extra>'
+        }], Object.assign(base(), {
+          autosize: true, height: 680,
+          margin: { t: estreito() ? 44 : 28, r: 10, l: 34, b: 70 }, xaxis: eixoAnos(), yaxis: eixoUfs()
+        }), CONFIG);
+      }
+      desenharParidade();
+
+      /* Redesenha quando a largura cruza o limite entre layout estreito e largo (ex.: girar o celular). */
+      let eraEstreito = estreito();
+      window.addEventListener('resize', function () {
+        if (estreito() === eraEstreito) { return; }
+        eraEstreito = estreito();
+        escolher(modoAtual);
+        desenharRelativo(seletor.value);
+        desenharParidade();
+      });
+    })();
+  </script>
+</body>
+</html>
