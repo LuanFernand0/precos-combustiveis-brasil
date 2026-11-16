@@ -146,7 +146,8 @@
     figure { margin: 2rem 0; text-align: center; }
     figure img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; }
     .chart-container { width: 100%; min-height: 420px; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
-    .chart-container.tall { min-height: 680px; }
+    .chart-container.tall { min-height: 660px; }
+    .chart-container img { display: block; border: 0; }
     .chart-fallback { font-family: var(--font-sans); font-size: 0.9rem; color: var(--text-muted); padding: 2rem 1rem; }
     figcaption { font-family: var(--font-sans); font-size: 0.85rem; line-height: 1.5; color: var(--text-muted); margin-top: 0.6rem; text-align: center; }
 
@@ -376,12 +377,13 @@ for i in orfas:
         <em>outliers</em> da variação mensal pelas cercas de Tukey (1977), isto é, valores fora de
         [Q1&nbsp;−&nbsp;1,5·IQR, Q3&nbsp;+&nbsp;1,5·IQR]. Para a RQ2, a desigualdade entre estados é medida pelo
         coeficiente de variação (desvio-padrão ÷ média) dos preços médios das UFs em cada mês, e a posição de cada
-        estado pelo <strong>índice relativo</strong> — preço da UF dividido pela mediana das UFs no mesmo mês,
-        vezes 100. Por ser uma razão dentro do mês, o índice não é afetado pela inflação, o que permite comparar duas
-        décadas de preços nominais. A persistência do ordenamento é avaliada pela correlação de postos de Spearman.
+        estado pela <strong>diferença percentual em relação à mediana</strong> — quanto o preço da UF fica acima ou
+        abaixo da mediana das UFs no mesmo mês. Por ser uma comparação dentro do mês, a medida não é afetada pela
+        inflação, o que permite comparar duas décadas de preços nominais. A persistência do ordenamento é avaliada pela correlação de postos de Spearman.
         Para a RQ3, adota-se a regra prática segundo a qual o etanol hidratado compensa quando custa até 70&nbsp;% do
-        preço da gasolina, dado seu menor rendimento por litro. As figuras estáticas foram produzidas com Matplotlib
-        (HUNTER, 2007) e seaborn (WASKOM, 2021), e os gráficos interativos com Plotly.js (PLOTLY, 2026).
+        preço da gasolina, dado seu menor rendimento por litro. Os gráficos interativos do artigo foram construídos com
+        Plotly.js (PLOTLY, 2026); suas versões estáticas e os gráficos do notebook, com Matplotlib (HUNTER, 2007) e
+        seaborn (WASKOM, 2021).
       </p>
     </section>
 
@@ -391,25 +393,18 @@ for i in orfas:
 
       <h3 class="sub">3.1 RQ1 — Evolução dos preços e choques</h3>
       <p>
-        A Figura&nbsp;1 apresenta a série nacional. No modo de índice, que permite comparar produtos de unidades
-        diferentes, fica evidente que os combustíveis não encareceram no mesmo ritmo: em termos nominais, o diesel
-        multiplicou seu preço por 7,6 no período, o GNV por 6,5 e o GLP por 6,3, enquanto a gasolina triplicou
+        A Figura&nbsp;1 apresenta a série nacional dos três combustíveis vendidos por litro. Eles não encareceram no
+        mesmo ritmo: em termos nominais, o diesel multiplicou seu preço por 7,6 no período, enquanto a gasolina
+        triplicou; entre os produtos vendidos em outras unidades, o GNV multiplicou por 6,5 e o GLP por 6,3
         (Tabela&nbsp;2). Como consequência, o diesel — que em 2001 custava metade do preço da gasolina — passou a
         custar mais do que ela em julho de 2022 e assim permaneceu nos sete meses finais da série.
       </p>
 
       <figure>
-        <div class="chart-controls" role="group" aria-label="Modo de exibição da Figura 1">
-          <button type="button" id="btn-indice" aria-pressed="true">Índice (jul/2001 = 100)</button>
-          <button type="button" id="btn-preco" aria-pressed="false">Preço nominal (R$/L)</button>
-        </div>
-        <div id="fig-serie" class="chart-container"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <div id="fig-1" class="chart-container"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <noscript><img src="assets/fig_serie_nacional.png" alt="Gráfico de linhas do preço médio nacional de gasolina comum, etanol hidratado e óleo diesel, de 2001 a 2023."></noscript>
         <figcaption>
-          Figura 1 — Preço médio nacional de revenda, jul/2001–jan/2023 (interativa: alterne o modo e passe o cursor
-          sobre as linhas). Marcos: ① liberação dos preços dos derivados (jan/2002); ② greve dos caminhoneiros
-          (mai/2018); ③ início da pandemia de Covid-19 (abr/2020); ④ primeiro mês sob a Lei Complementar nº&nbsp;194
-          (jul/2022). No modo de preço são exibidos apenas os combustíveis vendidos por litro. Setembro de 2020 não
-          foi pesquisado pela ANP. Fonte: elaboração própria com dados da ANP.
+          Figura 1 — Preço médio nacional de revenda de gasolina comum, etanol hidratado e óleo diesel, jul/2001–jan/2023 (reais nominais por litro). Setembro de 2020 não foi pesquisado pela ANP. Interativa: arraste sobre o gráfico para ampliar uma região e dê um duplo clique para voltar; os botões no canto superior direito também ampliam, reduzem e movem. Fonte: elaboração própria com dados da ANP.
         </figcaption>
       </figure>
 
@@ -433,21 +428,22 @@ for i in orfas:
       </div>
 
       <p>
-        A distribuição da variação mensal (Figura&nbsp;2) revela o mecanismo por trás dessas curvas. As medianas ficam
-        entre 0,1&nbsp;% e 0,5&nbsp;% ao mês e as caixas são estreitas, mas as caudas são longas: os preços passam a
-        maior parte do tempo quase parados e mudam em degraus. O etanol é a exceção, com dispersão cerca de duas vezes
-        maior que a dos derivados de petróleo (desvio-padrão de 5,30 contra 2,81 pontos percentuais da gasolina), o
-        que é coerente com um produto agrícola sujeito ao ciclo de safra. Pelo critério de Tukey, a gasolina tem 39
-        meses atípicos entre 256 variações observadas, e eles não se distribuem ao acaso: 14 ocorrem entre 2001 e
-        2005, 12 nos quatorze anos de 2006 a 2019 e 13 nos três anos de 2020 a 2022.
+        A variação mensal da gasolina (Figura&nbsp;2) revela o mecanismo por trás dessas curvas. Na maior parte dos
+        meses a barra é quase imperceptível — a mediana é de 0,2&nbsp;% e metade dos meses fica entre −0,4&nbsp;% e
+        +1,1&nbsp;% —, mas há barras longas isoladas: os preços passam a maior parte do tempo quase parados e mudam em
+        degraus. O etanol é ainda mais instável, com dispersão cerca de duas vezes maior que a dos derivados de
+        petróleo (desvio-padrão de 5,30 contra 2,81 pontos percentuais da gasolina; Tabela&nbsp;2), o que é coerente
+        com um produto agrícola sujeito ao ciclo de safra. Pelo critério de Tukey, é atípico o mês em que a gasolina
+        cai mais de 2,6&nbsp;% ou sobe mais de 3,3&nbsp;%. Por esse critério, a gasolina tem 39 meses atípicos entre
+        256 variações observadas, destacados em azul-escuro na figura, e eles não se distribuem ao acaso: 14 ocorrem
+        entre 2001 e 2005, 12 nos quatorze anos de 2006 a 2019 e 13 nos três anos de 2020 a 2022.
       </p>
 
       <figure>
-        <img src="assets/fig_variacao_mensal.png" width="1728" height="878" loading="lazy"
-             alt="Boxplots horizontais da variação mensal do preço médio nacional de cinco combustíveis. O etanol tem a caixa mais larga; a gasolina tem um ponto isolado em menos 16,6 por cento, em julho de 2022; novembro de 2002 aparece como extremo positivo para etanol, gasolina e diesel.">
+        <div id="fig-2" class="chart-container"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <noscript><img src="assets/fig_variacao_mensal.png" alt="Gráfico de barras da variação mensal do preço da gasolina, com os meses atípicos destacados."></noscript>
         <figcaption>
-          Figura 2 — Distribuição da variação mensal do preço médio nacional por combustível. Os círculos são meses
-          fora das cercas de Tukey (1,5 × IQR); os rótulos indicam os extremos discutidos no texto. Fonte: elaboração própria.
+          Figura 2 — Variação do preço médio nacional da gasolina comum frente ao mês anterior. Em azul-escuro, os meses atípicos pelo critério de Tukey (variação abaixo de −2,6&nbsp;% ou acima de +3,3&nbsp;%). Interativa: arraste sobre o gráfico para ampliar uma região e dê um duplo clique para voltar; os botões no canto superior direito também ampliam, reduzem e movem. Fonte: elaboração própria com dados da ANP.
         </figcaption>
       </figure>
 
@@ -487,8 +483,8 @@ for i in orfas:
 
       <h3 class="sub">3.2 RQ2 — Desigualdade de preços entre estados</h3>
       <p>
-        A Figura&nbsp;3 mostra o índice relativo de cada UF ao longo dos anos. Para a gasolina, a desigualdade é
-        moderada: o coeficiente de variação entre as 27 UFs é de 4,9&nbsp;% na média do período, e a UF mais cara
+        A Figura&nbsp;3 mostra quanto cada UF paga, em média, acima ou abaixo da mediana das UFs. Para a gasolina, a
+        desigualdade é moderada: o coeficiente de variação entre as 27 UFs é de 4,9&nbsp;% na média do período, e a UF mais cara
         custa em média 1,23 vez o preço da mais barata. O diesel tem comportamento semelhante (6,0&nbsp;%; 1,27 vez).
         Etanol e GLP são bem mais desiguais: 10,6&nbsp;% e 9,0&nbsp;% de coeficiente de variação, com razões
         máximo/mínimo de 1,59 e 1,44. No etanol, São Paulo paga em média 23&nbsp;% menos que a UF mediana, enquanto
@@ -505,26 +501,24 @@ for i in orfas:
             <option value="gas_cozinha_glp">GLP (botijão 13 kg)</option>
           </select>
         </div>
-        <div id="fig-relativo" class="chart-container tall"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <div id="fig-3" class="chart-container tall"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <noscript><img src="assets/fig_ranking_estados.png" alt="Gráfico de barras horizontais da diferença do preço da gasolina de cada UF em relação à mediana das UFs."></noscript>
         <figcaption>
-          Figura 3 — Índice relativo de preço por UF e ano (mediana das UFs no mês = 100; média anual), 2002–2022.
-          Azul indica preço abaixo da mediana; vermelho, acima. UFs agrupadas por região, de cima para baixo: Norte,
-          Nordeste, Centro-Oeste, Sudeste e Sul. Interativa: escolha o combustível e passe o cursor sobre as células.
-          Fonte: elaboração própria.
+          Figura 3 — Diferença média entre o preço de cada UF e a mediana das UFs no mesmo mês, jul/2001–jan/2023. Barras à direita do zero indicam UFs mais caras que a mediana; à esquerda, mais baratas. As cores indicam a região. Escolha o combustível no seletor. Interativa: arraste sobre o gráfico para ampliar uma região e dê um duplo clique para voltar; os botões no canto superior direito também ampliam, reduzem e movem. Fonte: elaboração própria com dados da ANP.
         </figcaption>
       </figure>
 
       <div class="table-wrap">
         <table>
-          <caption>Tabela 3 — Desigualdade interestadual por combustível, jul/2001–jan/2023. Entre parênteses, o índice relativo médio da UF.</caption>
+          <caption>Tabela 3 — Desigualdade interestadual por combustível, jul/2001–jan/2023. Entre parênteses, a diferença média do preço da UF em relação à mediana.</caption>
           <thead>
             <tr><th>Combustível</th><th class="num">CV médio</th><th class="num">Máx ÷ mín</th><th>UFs mais caras</th><th>UFs mais baratas</th><th class="num">Spearman 2001–06 × 2017–23</th></tr>
           </thead>
           <tbody>
-            <tr><td>Gasolina comum</td><td class="num">4,9&nbsp;%</td><td class="num">1,23</td><td>AC (112), RO (105), MT (105)</td><td>SP (94), PB (96), PR (96)</td><td class="num">0,13</td></tr>
-            <tr><td>Etanol hidratado</td><td class="num">10,6&nbsp;%</td><td class="num">1,59</td><td>AC (115), RR (114), PA (114)</td><td>SP (77), PR (84), GO (87)</td><td class="num">0,62</td></tr>
-            <tr><td>Óleo diesel</td><td class="num">6,0&nbsp;%</td><td class="num">1,27</td><td>AC (121), RR (111), MT (110)</td><td>PR (96), SP (97), PB (97)</td><td class="num">0,61</td></tr>
-            <tr><td>GLP (13&nbsp;kg)</td><td class="num">9,0&nbsp;%</td><td class="num">1,44</td><td>MT (125), AC (114), TO (111)</td><td>PE (92), RJ (93), BA (93)</td><td class="num">0,54</td></tr>
+            <tr><td>Gasolina comum</td><td class="num">4,9&nbsp;%</td><td class="num">1,23</td><td>AC (+12&nbsp;%), RO (+5&nbsp;%), MT (+5&nbsp;%)</td><td>SP (−6&nbsp;%), PB (−4&nbsp;%), PR (−4&nbsp;%)</td><td class="num">0,13</td></tr>
+            <tr><td>Etanol hidratado</td><td class="num">10,6&nbsp;%</td><td class="num">1,59</td><td>AC (+15&nbsp;%), RR (+14&nbsp;%), PA (+14&nbsp;%)</td><td>SP (−23&nbsp;%), PR (−16&nbsp;%), GO (−13&nbsp;%)</td><td class="num">0,62</td></tr>
+            <tr><td>Óleo diesel</td><td class="num">6,0&nbsp;%</td><td class="num">1,27</td><td>AC (+21&nbsp;%), RR (+11&nbsp;%), MT (+10&nbsp;%)</td><td>PR (−4&nbsp;%), SP (−3&nbsp;%), PB (−3&nbsp;%)</td><td class="num">0,61</td></tr>
+            <tr><td>GLP (13&nbsp;kg)</td><td class="num">9,0&nbsp;%</td><td class="num">1,44</td><td>MT (+25&nbsp;%), AC (+14&nbsp;%), TO (+11&nbsp;%)</td><td>PE (−8&nbsp;%), RJ (−7&nbsp;%), BA (−7&nbsp;%)</td><td class="num">0,54</td></tr>
           </tbody>
         </table>
       </div>
@@ -545,15 +539,15 @@ for i in orfas:
         continuar caro. Para a gasolina, a correlação é de apenas 0,13. Como as diferenças entre a maioria dos estados
         são pequenas nesse combustível, mudanças modestas — por exemplo, de alíquotas estaduais de ICMS — bastam para
         reordenar o miolo do <em>ranking</em>; o Rio de Janeiro, por exemplo, passa de preços próximos da mediana na
-        década de 2000 (índice entre 97 e 100) para cerca de 9&nbsp;% acima dela entre 2017 e 2020, quando chega a
-        ter a gasolina mais cara do país (Figura&nbsp;3).
+        década de 2000 (até 3&nbsp;% abaixo dela) para cerca de 9&nbsp;% acima entre 2017 e 2020, quando chega a ter
+        a gasolina mais cara do país.
       </p>
 
       <figure>
-        <img src="assets/fig_dispersao_interestadual.png" width="1610" height="931" loading="lazy"
-             alt="Gráfico de linhas do coeficiente de variação do preço médio entre as 27 UFs, em média móvel de 12 meses, de 2002 a 2023. O etanol oscila entre 8 e 16 por cento, o GLP entre 7 e 11, o diesel entre 4 e 7 e a gasolina entre 4 e 6. Gasolina, diesel e GLP caem a partir de 2021.">
+        <div id="fig-4" class="chart-container"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <noscript><img src="assets/fig_dispersao_interestadual.png" alt="Gráfico de linhas do coeficiente de variação do preço médio entre as UFs, por combustível."></noscript>
         <figcaption>
-          Figura 4 — Coeficiente de variação do preço médio entre as 27 UFs (média móvel de 12 meses). Fonte: elaboração própria.
+          Figura 4 — Coeficiente de variação do preço médio entre as 27 UFs, por combustível (média móvel de 12 meses). Quanto maior o valor, mais desiguais são os preços entre os estados. Interativa: arraste sobre o gráfico para ampliar uma região e dê um duplo clique para voltar; os botões no canto superior direito também ampliam, reduzem e movem. Fonte: elaboração própria com dados da ANP.
         </figcaption>
       </figure>
 
@@ -582,11 +576,10 @@ for i in orfas:
       </p>
 
       <figure>
-        <div id="fig-paridade" class="chart-container tall"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <div id="fig-5" class="chart-container tall"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <noscript><img src="assets/fig_etanol_por_uf.png" alt="Gráfico de barras horizontais do percentual de meses em que o etanol foi vantajoso em cada UF."></noscript>
         <figcaption>
-          Figura 5 — Percentual dos meses de cada ano em que o etanol foi vantajoso (razão de preços ≤ 0,70), por UF,
-          2002–2022. UFs ordenadas pelo percentual no período completo. Interativa: passe o cursor para ver a razão
-          média do ano. Fonte: elaboração própria.
+          Figura 5 — Percentual dos meses, entre jul/2001 e jan/2023, em que o etanol foi vantajoso (razão de preços etanol/gasolina ≤ 0,70), por UF. A linha tracejada marca 50&nbsp;% dos meses. As cores indicam a região. Interativa: arraste sobre o gráfico para ampliar uma região e dê um duplo clique para voltar; os botões no canto superior direito também ampliam, reduzem e movem. Fonte: elaboração própria com dados da ANP.
         </figcaption>
       </figure>
 
@@ -600,10 +593,10 @@ for i in orfas:
       </p>
 
       <figure>
-        <img src="assets/fig_paridade_regioes.png" width="1593" height="926" loading="lazy"
-             alt="Gráfico de linhas da razão de preços etanol/gasolina por região, em média móvel de 12 meses, com linha tracejada em 0,70. Norte e Nordeste ficam acima do limiar em quase todo o período; Sudeste e Centro-Oeste ficam abaixo até 2010 e oscilam em torno dele depois; todas as regiões sobem a partir de 2011.">
+        <div id="fig-6" class="chart-container"><p class="chart-fallback">Carregando gráfico interativo…</p></div>
+        <noscript><img src="assets/fig_paridade_regioes.png" alt="Gráfico de linhas da razão de preços etanol/gasolina por região, com o limiar de 0,70."></noscript>
         <figcaption>
-          Figura 6 — Razão de preços etanol/gasolina por região (média móvel de 12 meses) e limiar de paridade de 0,70. Fonte: elaboração própria.
+          Figura 6 — Razão de preços etanol/gasolina por região (média móvel de 12 meses). A linha tracejada marca o limiar de paridade de 0,70: abaixo dela, o etanol é vantajoso. Interativa: arraste sobre o gráfico para ampliar uma região e dê um duplo clique para voltar; os botões no canto superior direito também ampliam, reduzem e movem. Fonte: elaboração própria com dados da ANP.
         </figcaption>
       </figure>
 
@@ -726,163 +719,118 @@ python -m src.figuras              # data/processed  ->  docs/assets</code></pre
   <script>
     (function () {
       const D = window.DADOS_ARTIGO;
-      const alvos = ['fig-serie', 'fig-relativo', 'fig-paridade'];
-      if (!window.Plotly || !D) {
-        alvos.forEach(function (id) {
-          document.getElementById(id).innerHTML =
-            '<p class="chart-fallback">Não foi possível carregar o gráfico interativo (biblioteca Plotly.js ou dados indisponíveis). ' +
-            'As tabelas e as figuras estáticas desta seção apresentam os mesmos resultados.</p>';
-        });
-        return;
+      const ESTATICAS = {
+        'fig-1': ['fig_serie_nacional.png', 'Gráfico de linhas do preço médio nacional de gasolina comum, etanol hidratado e óleo diesel, de 2001 a 2023.'],
+        'fig-2': ['fig_variacao_mensal.png', 'Gráfico de barras da variação mensal do preço da gasolina, com os meses atípicos destacados.'],
+        'fig-3': ['fig_ranking_estados.png', 'Gráfico de barras horizontais da diferença do preço da gasolina de cada UF em relação à mediana das UFs.'],
+        'fig-4': ['fig_dispersao_interestadual.png', 'Gráfico de linhas do coeficiente de variação do preço médio entre as UFs, por combustível.'],
+        'fig-5': ['fig_etanol_por_uf.png', 'Gráfico de barras horizontais do percentual de meses em que o etanol foi vantajoso em cada UF.'],
+        'fig-6': ['fig_paridade_regioes.png', 'Gráfico de linhas da razão de preços etanol/gasolina por região, com o limiar de 0,70.']
+      };
+      /* Se o gráfico interativo não puder ser desenhado, mostra a versão estática da mesma figura. */
+      function estatica(id) {
+        document.getElementById(id).innerHTML =
+          '<img src="assets/' + ESTATICAS[id][0] + '" alt="' + ESTATICAS[id][1] + '">';
       }
-      alvos.forEach(function (id) { document.getElementById(id).innerHTML = ''; });
+      if (!window.Plotly || !D) { Object.keys(ESTATICAS).forEach(estatica); return; }
 
       const FONTE = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
       const TINTA = '#1f2937', SUAVE = '#4b5563', GRADE = '#e2e8f0';
-      const CONFIG = { responsive: true, displayModeBar: false };
-      const estreito = function () { return window.innerWidth < 600; };
-      const base = function () {
-        return {
-          font: { family: FONTE, size: estreito() ? 11 : 13, color: TINTA },
-          separators: ',.',
-          paper_bgcolor: '#fff',
-          plot_bgcolor: '#fff',
+      /* Barra de ferramentas sempre visível: ampliar, reduzir, mover e restaurar. */
+      const CONFIG = { responsive: true, displaylogo: false, displayModeBar: true,
+                       modeBarButtonsToRemove: ['select2d', 'lasso2d', 'autoScale2d', 'toImage'] };
+      function leiaute(altura, extra) {
+        return Object.assign({
+          autosize: true, height: altura, dragmode: 'zoom', separators: ',.',
+          font: { family: FONTE, size: 12, color: TINTA },
+          paper_bgcolor: '#fff', plot_bgcolor: '#fff',
+          margin: { t: 40, r: 16, l: 56, b: 40 },
+          legend: { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.14, yanchor: 'top' },
           hoverlabel: { bgcolor: '#fff', bordercolor: GRADE, font: { family: FONTE, size: 12, color: TINTA } }
+        }, extra);
+      }
+      function eixo(titulo, extra) {
+        return Object.assign({ title: { text: titulo, font: { color: SUAVE } }, gridcolor: GRADE, zeroline: false,
+                               linecolor: GRADE, tickfont: { color: SUAVE } }, extra);
+      }
+      const eixoTempo = function () { return eixo('', { type: 'date', hoverformat: '%m/%Y', gridcolor: '#fff' }); };
+      function desenhar(id, tracos, layout) {
+        try { document.getElementById(id).innerHTML = ''; Plotly.react(id, tracos, layout, CONFIG); }
+        catch (erro) { estatica(id); }
+      }
+
+      /* Gráfico de linhas ao longo do tempo. */
+      function linhas(id, fig, tituloY, formato, extra) {
+        const tracos = fig.series.map(function (s) {
+          return { type: 'scatter', mode: 'lines', name: s.nome, x: fig.datas, y: s.y,
+                   line: { color: s.cor, width: s.tracejado ? 1.5 : 2, dash: s.tracejado ? 'dash' : 'solid' },
+                   hoverinfo: s.tracejado ? 'skip' : undefined,
+                   hovertemplate: s.tracejado ? undefined : formato + '<extra>' + s.nome + '</extra>' };
+        });
+        desenhar(id, tracos, leiaute(440, Object.assign({ hovermode: 'x unified', xaxis: eixoTempo(), yaxis: eixo(tituloY) }, extra)));
+      }
+
+      /* Gráfico de barras horizontais por UF, com uma cor por região. */
+      function barrasPorUf(id, ufs, estados, regioes, valores, tituloX, formato, extra) {
+        const tracos = D.ordem_regioes.map(function (regiao) {
+          const idx = ufs.map(function (u, i) { return i; }).filter(function (i) { return regioes[i] === regiao; });
+          return { type: 'bar', orientation: 'h', name: regiao, marker: { color: D.cor_regiao[regiao] },
+                   y: idx.map(function (i) { return ufs[i]; }), x: idx.map(function (i) { return valores[i]; }),
+                   customdata: idx.map(function (i) { return estados[i]; }),
+                   hovertemplate: '<b>%{customdata}</b><br>' + formato + '<extra>' + regiao + '</extra>' };
+        });
+        desenhar(id, tracos, leiaute(660, Object.assign({
+          bargap: 0.25, margin: { t: 40, r: 16, l: 40, b: 44 },
+          legend: { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.1, yanchor: 'top' },
+          xaxis: eixo(tituloX),
+          yaxis: eixo('', { type: 'category', categoryorder: 'array', categoryarray: ufs, autorange: 'reversed',
+                            gridcolor: '#fff', tickfont: { color: SUAVE, size: 11 } })
+        }, extra)));
+      }
+
+      /* Figura 1 — preço médio nacional (R$/L). */
+      linhas('fig-1', D.fig1, 'R$ por litro (nominal)', 'R$ %{y:.2f}', { yaxis: eixo('R$ por litro (nominal)', { rangemode: 'tozero' }) });
+
+      /* Figura 2 — variação mensal da gasolina, com os meses atípicos em destaque. */
+      (function () {
+        const f = D.fig2;
+        const parte = function (atipico, nome, cor) {
+          const idx = f.y.map(function (v, i) { return i; }).filter(function (i) { return f.atipico[i] === atipico; });
+          return { type: 'bar', name: nome, marker: { color: cor },
+                   x: idx.map(function (i) { return f.datas[i]; }), y: idx.map(function (i) { return f.y[i]; }),
+                   hovertemplate: '%{x|%m/%Y}: %{y:.1f} %<extra>' + nome + '</extra>' };
         };
-      };
+        desenhar('fig-2', [parte(false, 'Mês comum', '#86b6ef'), parte(true, 'Mês atípico', '#104281')],
+          leiaute(440, { barmode: 'overlay', bargap: 0.1, xaxis: eixoTempo(),
+                         yaxis: eixo('Variação frente ao mês anterior (%)', { zeroline: true, zerolinecolor: SUAVE }) }));
+      })();
 
-      /* ---------- Figura 1: série nacional (índice × preço) ---------- */
-      const N = D.nacional;
-      const ordem = ['gasolina_comum', 'etanol_hidratado', 'oleo_diesel', 'gas_cozinha_glp', 'gas_natural_veicular_gnv'];
-      const porLitro = ['gasolina_comum', 'etanol_hidratado', 'oleo_diesel'];
-      const eventos = [
-        { x: '2002-01-01', texto: '①' },   // liberação dos preços dos derivados
-        { x: '2018-05-01', texto: '②' },   // greve dos caminhoneiros
-        { x: '2020-04-01', texto: '③' },   // início da pandemia de Covid-19
-        { x: '2022-07-01', texto: '④' }    // primeiro mês sob a LC nº 194/2022
-      ];
-
-      function desenharSerie(modo) {
-        const chaves = modo === 'preco' ? porLitro : ordem;
-        const tracos = chaves.map(function (c) {
-          const s = N.combustiveis[c];
-          return {
-            type: 'scatter', mode: 'lines', name: s.nome, x: N.datas,
-            y: modo === 'preco' ? s.preco : s.indice,
-            line: { color: s.cor, width: 2 },
-            hovertemplate: modo === 'preco' ? 'R$ %{y:.2f}<extra>' + s.nome + '</extra>'
-                                            : '%{y:.0f}<extra>' + s.nome + '</extra>'
-          };
-        });
-        const layout = Object.assign(base(), {
-          autosize: true,
-          height: 440,
-          margin: { t: 28, r: 16, l: estreito() ? 44 : 58, b: 40 },
-          hovermode: 'x unified',
-          showlegend: true,
-          legend: { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.14, yanchor: 'top', font: { color: TINTA } },
-          xaxis: { type: 'date', range: ['2001-04-01', '2023-07-01'], hoverformat: '%m/%Y', tickformat: '%Y',
-                   gridcolor: '#fff', linecolor: GRADE, tickfont: { color: SUAVE }, fixedrange: true },
-          yaxis: { title: { text: modo === 'preco' ? 'R$ por litro (nominal)' : 'Índice (jul/2001 = 100)', font: { color: SUAVE } },
-                   rangemode: 'tozero', gridcolor: GRADE, zeroline: false, tickfont: { color: SUAVE }, fixedrange: true },
-          shapes: eventos.map(function (e) {
-            return { type: 'line', x0: e.x, x1: e.x, yref: 'paper', y0: 0, y1: 1, line: { color: '#94a3b8', width: 1, dash: 'dot' } };
-          }),
-          annotations: eventos.map(function (e) {
-            return { x: e.x, yref: 'paper', y: 1, text: e.texto, showarrow: false, xanchor: 'center',
-                     yanchor: 'bottom', font: { size: 13, color: SUAVE } };
-          })
-        });
-        Plotly.react('fig-serie', tracos, layout, CONFIG);
-      }
-
-      const bIndice = document.getElementById('btn-indice');
-      const bPreco = document.getElementById('btn-preco');
-      let modoAtual = 'indice';
-      function escolher(modo) {
-        modoAtual = modo;
-        bIndice.setAttribute('aria-pressed', String(modo === 'indice'));
-        bPreco.setAttribute('aria-pressed', String(modo === 'preco'));
-        desenharSerie(modo);
-      }
-      bIndice.addEventListener('click', function () { escolher('indice'); });
-      bPreco.addEventListener('click', function () { escolher('preco'); });
-      escolher('indice');
-
-      /* ---------- Figura 3: índice relativo por UF e ano ---------- */
-      const R = D.relativo;
-      const DIVERGENTE = [[0, '#184f95'], [0.25, '#86b6ef'], [0.5, '#f0efec'], [0.75, '#f09a94'], [1, '#a82a2a']];
-      const eixoAnos = function () {
-        return { type: 'category', side: 'top', tickfont: { color: SUAVE }, fixedrange: true, ticks: '',
-                 tickangle: estreito() ? -90 : 0 };
-      };
-      const eixoUfs = function () {
-        return { type: 'category', autorange: 'reversed', tickfont: { color: SUAVE, size: 11 }, fixedrange: true, ticks: '' };
-      };
-      const barra = function (titulo) {
-        return { orientation: 'h', x: 0.5, xanchor: 'center', y: -0.03, yanchor: 'top', thickness: 10, len: 0.7,
-                 outlinewidth: 0, title: { text: titulo, side: 'bottom', font: { size: 11, color: SUAVE } },
-                 tickfont: { size: 11, color: SUAVE } };
-      };
-
-      function desenharRelativo(c) {
-        const s = R.combustiveis[c];
-        const extra = R.ufs.map(function (uf, i) { return R.anos.map(function () { return [R.estados[i], R.regioes[i]]; }); });
-        const traco = {
-          type: 'heatmap', x: R.anos.map(String), y: R.ufs, z: s.z, customdata: extra,
-          zmin: 80, zmax: 120, zmid: 100, colorscale: DIVERGENTE, xgap: 2, ygap: 2,
-          colorbar: barra('Índice relativo — ' + s.nome + ' (mediana das UFs = 100)'),
-          hovertemplate: '<b>%{customdata[0]}</b> · %{customdata[1]}<br>%{x}: índice %{z:.1f}<extra></extra>'
-        };
-        const divisas = [];
-        for (let i = 1; i < R.ufs.length; i++) {
-          if (R.regioes[i] !== R.regioes[i - 1]) {
-            divisas.push({ type: 'line', xref: 'paper', x0: 0, x1: 1, yref: 'y', y0: i - 0.5, y1: i - 0.5,
-                           line: { color: TINTA, width: 1 } });
-          }
-        }
-        const layout = Object.assign(base(), {
-          autosize: true, height: 680,
-          margin: { t: estreito() ? 44 : 28, r: 10, l: 34, b: 70 }, xaxis: eixoAnos(), yaxis: eixoUfs(), shapes: divisas
-        });
-        Plotly.react('fig-relativo', [traco], layout, CONFIG);
-      }
+      /* Figura 3 — diferença de cada UF em relação à mediana, por combustível. */
       const seletor = document.getElementById('sel-combustivel');
-      seletor.addEventListener('change', function () { desenharRelativo(seletor.value); });
-      desenharRelativo(seletor.value);
-
-      /* ---------- Figura 5: % de meses com etanol vantajoso ---------- */
-      const P = D.paridade;
-      const SEQUENCIAL = [[0, '#f0efec'], [0.15, '#cde2fb'], [0.4, '#86b6ef'], [0.65, '#3987e5'], [0.85, '#184f95'], [1, '#0d366b']];
-      const extraP = P.ufs.map(function (uf, i) {
-        return P.anos.map(function (a, j) {
-          const r = P.z_razao[i][j];
-          return [P.estados[i], P.regioes[i], r === null ? '—' : r.toFixed(3).replace('.', ','), P.pct_total[i].toFixed(1).replace('.', ',')];
-        });
-      });
-      function desenharParidade() {
-        Plotly.react('fig-paridade', [{
-          type: 'heatmap', x: P.anos.map(String), y: P.ufs, z: P.z_pct, customdata: extraP,
-          zmin: 0, zmax: 100, colorscale: SEQUENCIAL, xgap: 2, ygap: 2,
-          colorbar: barra('% dos meses do ano com etanol vantajoso'),
-          hovertemplate: '<b>%{customdata[0]}</b> · %{customdata[1]}<br>%{x}: %{z:.0f}% dos meses · razão média %{customdata[2]}' +
-                         '<br>Período completo: %{customdata[3]}% dos meses<extra></extra>'
-        }], Object.assign(base(), {
-          autosize: true, height: 680,
-          margin: { t: estreito() ? 44 : 28, r: 10, l: 34, b: 70 }, xaxis: eixoAnos(), yaxis: eixoUfs()
-        }), CONFIG);
+      function desenharRanking() {
+        const f = D.fig3[seletor.value];
+        barrasPorUf('fig-3', f.ufs, f.estados, f.regioes, f.y,
+          'Diferença em relação à mediana das UFs (%)', '%{x:+.1f} % em relação à mediana',
+          { shapes: [{ type: 'line', x0: 0, x1: 0, yref: 'paper', y0: 0, y1: 1, line: { color: TINTA, width: 1 } }] });
       }
-      desenharParidade();
+      seletor.addEventListener('change', desenharRanking);
+      desenharRanking();
 
-      /* Redesenha quando a largura cruza o limite entre layout estreito e largo (ex.: girar o celular). */
-      let eraEstreito = estreito();
-      window.addEventListener('resize', function () {
-        if (estreito() === eraEstreito) { return; }
-        eraEstreito = estreito();
-        escolher(modoAtual);
-        desenharRelativo(seletor.value);
-        desenharParidade();
-      });
+      /* Figura 4 — dispersão dos preços entre as UFs. */
+      linhas('fig-4', D.fig4, 'Coeficiente de variação entre as UFs (%)', '%{y:.1f} %',
+        { yaxis: eixo('Coeficiente de variação entre as UFs (%)', { rangemode: 'tozero' }) });
+
+      /* Figura 5 — % dos meses com etanol vantajoso, por UF. */
+      barrasPorUf('fig-5', D.fig5.ufs, D.fig5.estados, D.fig5.regioes, D.fig5.y,
+        '% dos meses com etanol vantajoso', '%{x:.1f} % dos meses',
+        { xaxis: eixo('% dos meses com etanol vantajoso', { range: [0, 100] }),
+          shapes: [{ type: 'line', x0: 50, x1: 50, yref: 'paper', y0: 0, y1: 1, line: { color: TINTA, width: 1, dash: 'dash' } }] });
+
+      /* Figura 6 — razão etanol/gasolina por região, com o limiar de 0,70. */
+      const fig6 = Object.assign({}, D.fig6, { series: D.fig6.series.concat([{
+        nome: 'Limiar 0,70 (abaixo, etanol vantajoso)', cor: TINTA, tracejado: true,
+        y: D.fig6.datas.map(function () { return D.fig6.limiar; }) }]) });
+      linhas('fig-6', fig6, 'Preço do etanol ÷ preço da gasolina', '%{y:.2f}', {});
     })();
   </script>
 </body>

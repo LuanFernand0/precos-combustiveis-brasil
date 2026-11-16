@@ -2,8 +2,8 @@
 
 Saídas (todas em ``docs/assets/``):
 
-* ``fig_variacao_mensal.png``, ``fig_dispersao_interestadual.png`` e
-  ``fig_paridade_regioes.png`` — figuras estáticas (Matplotlib, 200 dpi);
+* ``fig_*.png`` — versão estática (Matplotlib, 200 dpi) de cada uma das seis
+  figuras do artigo, usada quando o gráfico interativo não pode ser carregado;
 * ``dados_graficos.js`` — séries já agregadas que alimentam os gráficos
   interativos (Plotly.js) de ``docs/index.html``;
 * ``numeros_chave.json`` — todos os números citados no texto do artigo, para
@@ -26,9 +26,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
+from matplotlib.patches import Patch  # noqa: E402
 
 from src import analise  # noqa: E402
-from src.etl import COMBUSTIVEIS, LIMIAR_PARIDADE, RAIZ, ler_paridade, ler_precos  # noqa: E402
+from src.etl import LIMIAR_PARIDADE, RAIZ, ler_paridade, ler_precos  # noqa: E402
 
 log = logging.getLogger("figuras")
 DIR_ASSETS = RAIZ / "docs" / "assets"
@@ -46,7 +47,6 @@ COR_REGIAO = {
     "Sudeste": "#6250d6", "Sul": "#eda100",
 }
 TINTA, TINTA_SUAVE, GRADE = "#1f2937", "#4b5563", "#e2e8f0"
-ANOS_COMPLETOS = (2002, 2022)  # 2001 começa em julho; 2023 só tem janeiro
 
 
 def _estilo() -> None:
@@ -60,11 +60,6 @@ def _estilo() -> None:
     })
 
 
-def _br(valor: float, casas: int = 1) -> str:
-    """Formata número com vírgula decimal."""
-    return f"{valor:.{casas}f}".replace(".", ",")
-
-
 def _rotulos_finais(ax, finais: dict[str, float], x, folga: float) -> None:
     """Rotula o fim de cada linha, afastando rótulos que ficariam sobrepostos."""
     y_anterior = -np.inf
@@ -76,41 +71,76 @@ def _rotulos_finais(ax, finais: dict[str, float], x, folga: float) -> None:
 
 
 # --------------------------------------------------------------------------
-# Figuras estáticas
+# Figuras estáticas (versões em PNG dos mesmos seis gráficos do artigo)
 # --------------------------------------------------------------------------
-def fig_variacao_mensal(precos: pd.DataFrame, destino: Path) -> None:
-    """Boxplots da variação mensal nacional, com outliers de Tukey rotulados."""
-    var = analise.serie_nacional(precos, "var_mensal_pct")[analise.COMBUSTIVEIS_SERIE_LONGA]
-    ordem = var.std().sort_values().index.tolist()
-    fig, ax = plt.subplots(figsize=(9, 4.6))
-    caixas = ax.boxplot(
-        [var[c].dropna() for c in ordem], orientation="horizontal", widths=0.55,
-        patch_artist=True, whis=1.5,
-        medianprops={"color": TINTA, "linewidth": 1.6},
-        whiskerprops={"color": TINTA_SUAVE}, capprops={"color": TINTA_SUAVE},
-        flierprops={"marker": "o", "markersize": 4, "markerfacecolor": "none",
-                    "markeredgecolor": TINTA_SUAVE, "alpha": 0.7},
-    )
-    for caixa, comb in zip(caixas["boxes"], ordem):
-        caixa.set(facecolor=COR[comb], alpha=0.85, edgecolor="white")
-    ax.set_yticks(range(1, len(ordem) + 1), [analise.rotulo(c) for c in ordem])
-    ax.axvline(0, color=TINTA_SUAVE, linewidth=0.8)
-    ax.grid(axis="y", visible=False)
-    ax.set_xlabel("Variação do preço médio nacional frente ao mês anterior (%)")
-    ax.set_title("Distribuição da variação mensal dos preços, jul/2001–jan/2023")
+COMBUSTIVEIS_POR_LITRO = ["gasolina_comum", "etanol_hidratado", "oleo_diesel"]
+COMBUSTIVEIS_RANKING = ["gasolina_comum", "etanol_hidratado", "oleo_diesel", "gas_cozinha_glp"]
 
-    rotulos = {
-        "gasolina_comum": [("2022-07", (0, -16)), ("2002-11", (0, -16))],
-        "etanol_hidratado": [("2002-11", (0, 9)), ("2004-05", (0, -16)), ("2020-04", (0, 9))],
-        "oleo_diesel": [("2002-11", (0, 9))],
-    }
-    for comb, pontos in rotulos.items():
-        y = ordem.index(comb) + 1
-        for mes, deslocamento in pontos:
-            x = var.loc[pd.Timestamp(mes + "-01"), comb]
-            texto = pd.Timestamp(mes + "-01").strftime("%m/%Y")
-            ax.annotate(texto, (x, y), xytext=deslocamento, textcoords="offset points",
-                        ha="center", fontsize=8, color=TINTA)
+
+def fig_serie_nacional(precos: pd.DataFrame, destino: Path) -> None:
+    """Linhas: preço médio nacional dos três combustíveis vendidos por litro."""
+    serie = analise.serie_nacional(precos)[COMBUSTIVEIS_POR_LITRO]
+    fig, ax = plt.subplots(figsize=(9, 4.6))
+    for comb in COMBUSTIVEIS_POR_LITRO:
+        ax.plot(serie.index, serie[comb], color=COR[comb], linewidth=2, label=analise.rotulo(comb))
+    ax.set_ylim(0, None)
+    ax.set_ylabel("R$ por litro (nominal)")
+    ax.set_title("Preço médio nacional de revenda, jul/2001–jan/2023")
+    ax.grid(axis="x", visible=False)
+    ax.legend(loc="upper left", frameon=False)
+    fig.savefig(destino)
+    plt.close(fig)
+
+
+def fig_variacao_mensal(precos: pd.DataFrame, destino: Path) -> None:
+    """Barras: variação mensal da gasolina, com os meses atípicos em destaque."""
+    var = analise.serie_nacional(precos, "var_mensal_pct")["gasolina_comum"].dropna()
+    fora = analise.outliers_variacao(precos)
+    atipico = var.index.isin(fora.loc[fora["combustivel"] == "gasolina_comum", "data"])
+    fig, ax = plt.subplots(figsize=(9, 4.6))
+    ax.bar(var.index[~atipico], var[~atipico], width=25, color="#9ec5f4", label="mês comum")
+    ax.bar(var.index[atipico], var[atipico], width=25, color="#104281", label="mês atípico (Tukey)")
+    ax.axhline(0, color=TINTA_SUAVE, linewidth=0.8)
+    ax.set_ylabel("Variação frente ao mês anterior (%)")
+    ax.set_title("Gasolina comum — variação mensal do preço médio nacional")
+    ax.grid(axis="x", visible=False)
+    ax.legend(loc="upper center", ncol=2, frameon=False)
+    fig.savefig(destino)
+    plt.close(fig)
+
+
+def _barras_por_uf(ax, ufs, valores, regioes) -> None:
+    """Barras horizontais por UF, coloridas pela região, com legenda."""
+    ax.barh(ufs, valores, color=[COR_REGIAO[r] for r in regioes], height=0.72)
+    ax.invert_yaxis()
+    ax.set_axisbelow(True)
+    ax.grid(axis="y", visible=False)
+    ax.tick_params(axis="y", labelsize=8)
+    legenda = [Patch(facecolor=COR_REGIAO[r], label=r) for r in analise.ORDEM_REGIOES]
+    ax.legend(handles=legenda, loc="lower right", frameon=False, fontsize=9)
+
+
+def fig_ranking_estados(precos: pd.DataFrame, destino: Path) -> None:
+    """Barras: quanto a gasolina de cada UF custa acima/abaixo da mediana das UFs."""
+    r = analise.ranking_estados(precos, "gasolina_comum")
+    fig, ax = plt.subplots(figsize=(9, 6.8))
+    _barras_por_uf(ax, r["uf"], r["indice_medio"] - 100, r["regiao"])
+    ax.axvline(0, color=TINTA, linewidth=1)
+    ax.set_xlabel("Diferença média em relação à mediana das UFs (%)")
+    ax.set_title("Gasolina comum — preço de cada UF frente à mediana, jul/2001–jan/2023")
+    fig.savefig(destino)
+    plt.close(fig)
+
+
+def fig_etanol_por_uf(paridade: pd.DataFrame, destino: Path) -> None:
+    """Barras: % dos meses em que o etanol foi vantajoso em cada UF."""
+    r = analise.paridade_resumo_por_uf(paridade)
+    fig, ax = plt.subplots(figsize=(9, 6.8))
+    _barras_por_uf(ax, r["uf"], r["pct_meses_vantajoso"], r["regiao"])
+    ax.axvline(50, color=TINTA, linewidth=1, linestyle=(0, (4, 3)))
+    ax.set_xlim(0, 100)
+    ax.set_xlabel("% dos meses com razão etanol/gasolina ≤ 0,70")
+    ax.set_title("Meses em que o etanol foi vantajoso, por UF, jul/2001–jan/2023")
     fig.savefig(destino)
     plt.close(fig)
 
@@ -168,49 +198,67 @@ def _lista(valores, casas: int = 3) -> list:
     return [None if pd.isna(v) else round(float(v), casas) for v in valores]
 
 
+def _datas(indice: pd.DatetimeIndex) -> list[str]:
+    return [d.strftime("%Y-%m-%d") for d in indice]
+
+
 def dados_interativos(precos: pd.DataFrame, paridade: pd.DataFrame) -> dict:
     """Monta o dicionário consumido pelo Plotly.js em ``docs/index.html``."""
-    serie = analise.serie_nacional(precos)[analise.COMBUSTIVEIS_SERIE_LONGA]
-    indice = analise.indice_base_100(serie)
-    nacional = {
-        "datas": [d.strftime("%Y-%m-%d") for d in serie.index],
-        "combustiveis": {
-            c: {"nome": analise.rotulo(c), "unidade": COMBUSTIVEIS[c][1], "cor": COR[c],
-                "preco": _lista(serie[c], 4), "indice": _lista(indice[c], 1)}
-            for c in serie.columns
-        },
+    # Figura 1 — série nacional (R$/L)
+    serie = analise.serie_nacional(precos)[COMBUSTIVEIS_POR_LITRO]
+    fig1 = {
+        "datas": _datas(serie.index),
+        "series": [{"nome": analise.rotulo(c), "cor": COR[c], "y": _lista(serie[c], 4)}
+                   for c in COMBUSTIVEIS_POR_LITRO],
     }
 
-    anos = list(range(ANOS_COMPLETOS[0], ANOS_COMPLETOS[1] + 1))
-    geo = (precos[precos["nivel_geografico"] == "ESTADO"]
-           .drop_duplicates("uf")[["uf", "estado", "regiao"]])
-    geo["ordem_regiao"] = geo["regiao"].map({r: i for i, r in enumerate(analise.ORDEM_REGIOES)})
-    geo = geo.sort_values(["ordem_regiao", "uf"])
-    relativo = {
-        "anos": anos, "ufs": geo["uf"].tolist(), "estados": geo["estado"].tolist(),
-        "regioes": geo["regiao"].tolist(), "combustiveis": {},
+    # Figura 2 — variação mensal da gasolina e meses atípicos
+    var = analise.serie_nacional(precos, "var_mensal_pct")["gasolina_comum"].dropna()
+    fora = analise.outliers_variacao(precos)
+    fora = fora[fora["combustivel"] == "gasolina_comum"]
+    fig2 = {
+        "datas": _datas(var.index), "y": _lista(var, 2),
+        "atipico": [bool(v) for v in var.index.isin(fora["data"])],
+        "limites": [round(float(fora["limite_inferior"].iloc[0]), 2),
+                    round(float(fora["limite_superior"].iloc[0]), 2)],
     }
-    for comb in ["gasolina_comum", "etanol_hidratado", "oleo_diesel", "gas_cozinha_glp"]:
-        tabela = analise.indice_relativo_anual(precos, comb).reindex(index=geo["uf"], columns=anos)
-        relativo["combustiveis"][comb] = {
-            "nome": analise.rotulo(comb), "z": [_lista(linha, 1) for linha in tabela.to_numpy()],
+
+    # Figura 3 — diferença de cada UF em relação à mediana, por combustível
+    fig3 = {}
+    for comb in COMBUSTIVEIS_RANKING:
+        r = analise.ranking_estados(precos, comb)
+        fig3[comb] = {
+            "nome": analise.rotulo(comb), "ufs": r["uf"].tolist(), "estados": r["estado"].tolist(),
+            "regioes": r["regiao"].tolist(), "y": _lista(r["indice_medio"] - 100, 1),
         }
 
-    anual = analise.paridade_anual_por_uf(paridade)
-    resumo = analise.paridade_resumo_por_uf(paridade)
-    ordem_ufs = resumo["uf"].tolist()
-    pct = anual.pivot(index="uf", columns="ano", values="pct_meses_vantajoso").reindex(
-        index=ordem_ufs, columns=anos)
-    razao = anual.pivot(index="uf", columns="ano", values="razao_media").reindex(
-        index=ordem_ufs, columns=anos)
-    paridade_js = {
-        "anos": anos, "ufs": ordem_ufs, "estados": resumo["estado"].tolist(),
-        "regioes": resumo["regiao"].tolist(),
-        "pct_total": _lista(resumo["pct_meses_vantajoso"], 1),
-        "z_pct": [_lista(linha, 1) for linha in pct.to_numpy()],
-        "z_razao": [_lista(linha, 3) for linha in razao.to_numpy()],
+    # Figura 4 — dispersão entre UFs (média móvel de 12 meses)
+    disp = analise.dispersao_interestadual(precos)
+    combs = ["etanol_hidratado", "gas_cozinha_glp", "oleo_diesel", "gasolina_comum"]
+    cv = disp.pivot(index="data", columns="combustivel", values="cv_pct")[combs]
+    cv = cv.rolling(12, min_periods=6).mean().dropna(how="all")
+    fig4 = {
+        "datas": _datas(cv.index),
+        "series": [{"nome": analise.rotulo(c), "cor": COR[c], "y": _lista(cv[c], 2)} for c in combs],
     }
-    return {"nacional": nacional, "relativo": relativo, "paridade": paridade_js}
+
+    # Figura 5 — % de meses com etanol vantajoso, por UF
+    r = analise.paridade_resumo_por_uf(paridade)
+    fig5 = {
+        "ufs": r["uf"].tolist(), "estados": r["estado"].tolist(), "regioes": r["regiao"].tolist(),
+        "y": _lista(r["pct_meses_vantajoso"], 1), "razao": _lista(r["razao_media"], 3),
+    }
+
+    # Figura 6 — razão etanol/gasolina por região (média móvel de 12 meses)
+    reg = analise.paridade_por_regiao(paridade)[analise.ORDEM_REGIOES]
+    reg = reg.rolling(12, min_periods=6).mean().dropna(how="all")
+    fig6 = {
+        "datas": _datas(reg.index), "limiar": LIMIAR_PARIDADE,
+        "series": [{"nome": rg, "cor": COR_REGIAO[rg], "y": _lista(reg[rg], 3)}
+                   for rg in analise.ORDEM_REGIOES],
+    }
+    return {"cor_regiao": COR_REGIAO, "ordem_regioes": analise.ORDEM_REGIOES,
+            "fig1": fig1, "fig2": fig2, "fig3": fig3, "fig4": fig4, "fig5": fig5, "fig6": fig6}
 
 
 # --------------------------------------------------------------------------
@@ -353,8 +401,11 @@ def executar(dir_assets: Path = DIR_ASSETS) -> dict:
     dir_assets.mkdir(parents=True, exist_ok=True)
     precos, paridade = ler_precos(), ler_paridade()
 
+    fig_serie_nacional(precos, dir_assets / "fig_serie_nacional.png")
     fig_variacao_mensal(precos, dir_assets / "fig_variacao_mensal.png")
+    fig_ranking_estados(precos, dir_assets / "fig_ranking_estados.png")
     fig_dispersao_interestadual(precos, dir_assets / "fig_dispersao_interestadual.png")
+    fig_etanol_por_uf(paridade, dir_assets / "fig_etanol_por_uf.png")
     fig_paridade_regioes(paridade, dir_assets / "fig_paridade_regioes.png")
 
     dados = dados_interativos(precos, paridade)
