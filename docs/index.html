@@ -715,7 +715,7 @@ python -m src.figuras              # data/processed  ->  docs/assets</code></pre
 
   <!-- Plotly.js (gráficos interativos) e dados agregados gerados por src/figuras.py -->
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-  <script src="assets/dados_graficos.js"></script>
+  <script src="assets/dados_graficos.js?v=3"></script>
   <script>
     (function () {
       const D = window.DADOS_ARTIGO;
@@ -732,7 +732,7 @@ python -m src.figuras              # data/processed  ->  docs/assets</code></pre
         document.getElementById(id).innerHTML =
           '<img src="assets/' + ESTATICAS[id][0] + '" alt="' + ESTATICAS[id][1] + '">';
       }
-      if (!window.Plotly || !D) { Object.keys(ESTATICAS).forEach(estatica); return; }
+      if (!window.Plotly || !D || !D.fig1 || !D.fig6) { Object.keys(ESTATICAS).forEach(estatica); return; }
 
       const FONTE = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
       const TINTA = '#1f2937', SUAVE = '#4b5563', GRADE = '#e2e8f0';
