@@ -1,8 +1,8 @@
 # Dicionário de dados
 
 **Projeto:** Preços de revenda de combustíveis no Brasil (2001–2023): evolução, desigualdade regional e paridade etanol/gasolina
-**Disciplina:** Linguagem de Programação VI — Análise e Visualização de Dados com Python (6º período, Sistemas de Informação)
-**Autores:** Luan Fernando, Miguel Marreiros — [Nome da Instituição], [Semestre]
+**Disciplina:** Linguagem de Programação (Análise e Visualização de Dados com Python) (6º período, Sistemas de Informação)
+**Autores:** Luan Fernando, Miguel Marreiros — UniLaSalle Rio de Janeiro, 2026.2
 
 Este documento descreve todas as variáveis dos dados brutos (`data/raw/`) e dos dados tratados (`data/processed/`).
 

@@ -11,9 +11,9 @@
 | | |
 |---|---|
 | **Autores** | Luan Fernando, Miguel Marreiros |
-| **Instituição** | [Nome da Instituição] — Bacharelado em Sistemas de Informação |
-| **Disciplina** | Linguagem de Programação VI — Análise e Visualização de Dados com Python (6º período) |
-| **Semestre** | [Semestre] |
+| **Instituição** | UniLaSalle Rio de Janeiro — Bacharelado em Sistemas de Informação |
+| **Disciplina** | Linguagem de Programação (Análise e Visualização de Dados com Python) (6º período) |
+| **Semestre** | 2026.2 |
 | **Artigo (GitHub Pages)** | <https://luanfernand0.github.io/precos-combustiveis-brasil/> |
 | **Fonte original dos dados** | <https://www.kaggle.com/datasets/fidelissauro/combustiveis-brasil> (dado primário: ANP) |
 
@@ -133,7 +133,7 @@ Preços **nominais** (sem correção pela inflação); base agregada por terceir
 
 ## Como citar
 
-> FERNANDO, Luan; MARREIROS, Miguel. **Preços de revenda de combustíveis no Brasil (2001–2023)**: evolução, desigualdade regional e paridade etanol/gasolina. [Cidade]: [Nome da Instituição], 2026. Disponível em: https://github.com/LuanFernand0/precos-combustiveis-brasil.
+> FERNANDO, Luan; MARREIROS, Miguel. **Preços de revenda de combustíveis no Brasil (2001–2023)**: evolução, desigualdade regional e paridade etanol/gasolina. Niterói: UniLaSalle Rio de Janeiro, 2026. Disponível em: https://github.com/LuanFernand0/precos-combustiveis-brasil.
 
 ## Referência dos dados
 

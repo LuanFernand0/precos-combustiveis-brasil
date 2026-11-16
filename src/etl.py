@@ -1,6 +1,6 @@
 """Pipeline de ETL — Preços de revenda de combustíveis no Brasil (ANP, 2001–2023).
 
-Projeto Final — Linguagem de Programação VI (Análise e Visualização de Dados
+Projeto Final — Linguagem de Programação (Análise e Visualização de Dados
 com Python), Bacharelado em Sistemas de Informação, 6º período.
 
 O pipeline é determinístico: dadas as mesmas entradas em ``data/raw/`` ele
